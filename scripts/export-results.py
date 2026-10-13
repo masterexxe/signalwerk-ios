@@ -22,6 +22,15 @@ def run(args):
     return subprocess.run(args, capture_output=True, text=True)
 
 
+def upright(path):
+    """iPad-Bilder entstehen im Querformat, liegen aber hochkant in der Datei: drehen."""
+    sizes = run(["sips", "-g", "pixelWidth", "-g", "pixelHeight", path]).stdout
+    width = re.search(r"pixelWidth: (\d+)", sizes)
+    height = re.search(r"pixelHeight: (\d+)", sizes)
+    if width and height and int(height.group(1)) > int(width.group(1)):
+        run(["sips", "--rotate", "270", path])
+
+
 for spec in sys.argv[2:]:
     name, path = spec.split("=", 1)
     if not os.path.exists(path):
@@ -43,7 +52,10 @@ for spec in sys.argv[2:]:
                     continue
                 clean = re.sub(r"_\d+_[0-9A-F-]{36}", "", human)
                 clean = re.sub(r"[^A-Za-z0-9._-]+", "-", clean)
-                shutil.copy(os.path.join(temp, exported), os.path.join(out, "screens", clean))
+                target = os.path.join(out, "screens", clean)
+                shutil.copy(os.path.join(temp, exported), target)
+                if clean.startswith("ipad-") and clean.endswith(".png"):
+                    upright(target)
                 count += 1
     else:
         summary.append(f"Anhänge aus {name} nicht lesbar: {result.stderr.strip()[:400]}\n")

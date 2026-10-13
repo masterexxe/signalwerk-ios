@@ -12,26 +12,24 @@ struct SoundsScreen: View {
                     SoundSearchField()
                 }
                 SoundPadGrid(minimumWidth: 150)
-                Text("Antippen spielt den Sound im OBS-Widget. Gedrückt halten zum Vorhören auf diesem Gerät.")
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    Image(systemName: "speaker.wave.2.fill")
+                    Text("Gesamtlautstärke \(store.master) %")
+                }
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(Palette.textMuted)
+                .padding(.top, 4)
+                .accessibilityElement(children: .combine)
+                Text("Antippen spielt den Sound im OBS-Widget. Gedrückt halten zum Vorhören auf diesem Gerät. Die Gesamtlautstärke stellst du im Dashboard ein.")
                     .font(.footnote)
                     .foregroundStyle(Palette.textSubtle)
-                    .padding(.top, 4)
             }
             .padding(16)
         }
         .background(Palette.background)
         .refreshable { await store.load() }
         .navigationTitle("Sounds")
-        .toolbar {
-            EmergencyToolbar()
-            ToolbarItem(placement: .topBarLeading) {
-                Label("\(store.master) %", systemImage: "speaker.wave.2.fill")
-                    .labelStyle(.titleAndIcon)
-                    .font(.footnote)
-                    .foregroundStyle(Palette.textMuted)
-                    .accessibilityLabel("Gesamtlautstärke \(store.master) Prozent")
-            }
-        }
+        .toolbar { EmergencyToolbar() }
         .task {
             if !store.loaded { await store.load() }
         }

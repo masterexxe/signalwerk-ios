@@ -18,6 +18,8 @@ final class ChatStore {
     private(set) var sending = false
     var draft = ""
     var replyTo: ChatMessage?
+    /// Emotes und Badges als Bilder für die Zeilen.
+    let images = ChatImageCache()
 
     private let context: SessionContext
     @ObservationIgnored private var source: ChatSource?

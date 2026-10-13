@@ -11,6 +11,18 @@ final class ScreenshotTests: XCTestCase {
         continueAfterFailure = true
         app = XCUIApplication()
         app.launchArguments += ["-demo", "-uiTesting"]
+        // Systemhinweise im Simulator (Diktierfunktion, Berechtigungen) wegklicken, statt sie
+        // den Rundgang verdecken zu lassen.
+        addUIInterruptionMonitor(withDescription: "Systemhinweis") { alert in
+            for label in ["Not Now", "Nicht jetzt", "Don’t Allow", "Nicht erlauben", "Later", "Später"] {
+                let button = alert.buttons[label]
+                if button.exists {
+                    button.tap()
+                    return true
+                }
+            }
+            return false
+        }
     }
 
     private var isPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
@@ -100,7 +112,7 @@ final class ScreenshotTests: XCTestCase {
         } else {
             snap("01-spenden")
             // Oberste Spende per Wischen annehmen.
-            let first = app.cells.firstMatch
+            let first = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH %@", "queue-row-")).firstMatch
             if first.waitForExistence(timeout: 5) {
                 first.swipeRight()
                 sleep(1)
@@ -116,11 +128,7 @@ final class ScreenshotTests: XCTestCase {
             }
             open(tab: "Sprache")
             sleep(1)
-            let editor = element("tts-text")
-            if editor.waitForExistence(timeout: 3) {
-                editor.tap()
-                editor.typeText("Danke für die Spende, MaxPower!")
-            }
+            // Kein Tippen: Die Tastatur ruft im Simulator den Hinweis zur Diktierfunktion auf.
             snap("04-sprache")
             open(tab: "Chat")
             sleep(3)

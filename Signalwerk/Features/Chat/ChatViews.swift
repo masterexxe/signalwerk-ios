@@ -223,23 +223,12 @@ struct ChatLineView: View {
                     .font(.caption2.weight(.bold))
                     .foregroundStyle(Palette.violet)
             }
-            let flow = FlowLayout(spacing: 0, lineSpacing: 2)
-            flow {
-                Text(SignalwerkFormat.clock(Date(timeIntervalSince1970: message.at / 1000)) + " ")
-                    .font(.caption.monospacedDigit())
-                    .foregroundStyle(Palette.textSubtle)
-                ForEach(Array(session.chat.badgeImages(message.badges).enumerated()), id: \.offset) { _, badge in
-                    RemoteImage(url: badge.url2, size: 16)
-                        .padding(.trailing, 3)
-                        .accessibilityLabel(badge.title)
-                }
-                Text(message.name + (message.action ? " " : ": "))
-                    .font(.subheadline.weight(.bold))
-                    .foregroundStyle(Palette.chatName(message.color))
-                ChatTextPieces(text: message.text, emotes: message.emotes, italic: message.action, tint: message.action ? Palette.chatName(message.color) : nil)
-            }
-            .strikethrough(removed)
-            .opacity(removed ? 0.45 : 1)
+            lineText(message)
+                .strikethrough(removed)
+                .opacity(removed ? 0.45 : 1)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityLabel(accessibilityText(message))
             if let cleared = message.cleared {
                 Text(cleared.kind == "timeout" ? "Timeout \(SignalwerkFormat.timeout(cleared.seconds ?? 0))" : cleared.kind == "ban" ? "Gebannt" : "Chat geleert")
                     .font(.caption2.weight(.semibold))
@@ -252,6 +241,31 @@ struct ChatLineView: View {
         }
         .padding(.vertical, 2)
         .background(mentionsMe(message) ? Palette.amber.opacity(0.1) : .clear)
+    }
+
+    /// Uhrzeit, Badges, Name und Text als ein einziger Text: bricht um wie Text und ist für
+    /// VoiceOver eine Zeile.
+    private func lineText(_ message: ChatMessage) -> Text {
+        let chat = session.chat
+        let nameColor = Palette.chatName(message.color)
+        var text: Text = Text(verbatim: SignalwerkFormat.clock(Date(timeIntervalSince1970: message.at / 1000)) + " ")
+            .font(.caption.monospacedDigit())
+            .foregroundStyle(Palette.textSubtle)
+        for badge in chat.badgeImages(message.badges) {
+            if let image = chat.images.image(badge.url2, height: ChatRichText.badgeHeight) {
+                text = text + Text(Image(uiImage: image)).baselineOffset(-3) + Text(verbatim: " ")
+            }
+        }
+        text = text + Text(verbatim: message.name + (message.action ? " " : ": "))
+            .font(.subheadline.weight(.bold))
+            .foregroundStyle(nameColor)
+        let segments = ChatText.segments(message.text, emotes: message.emotes, extra: chat.assets.emotes)
+        return text + ChatRichText.text(segments, images: chat.images, italic: message.action, tint: message.action ? nameColor : nil)
+    }
+
+    private func accessibilityText(_ message: ChatMessage) -> String {
+        let segments = ChatText.segments(message.text, emotes: message.emotes, extra: session.chat.assets.emotes)
+        return "\(message.name): \(ChatRichText.plain(segments))"
     }
 
     private func mentionsMe(_ message: ChatMessage) -> Bool {
@@ -281,102 +295,17 @@ struct ChatLineView: View {
 
 /// Text einer Nachricht für Hinweise (ohne Uhrzeit und Namen).
 struct ChatTextView: View {
-    let text: String
-    let emotes: [ChatEmote]
-
-    var body: some View {
-        let flow = FlowLayout(spacing: 0, lineSpacing: 2)
-        flow {
-            ChatTextPieces(text: text, emotes: emotes, italic: false, tint: nil)
-        }
-    }
-}
-
-/// Stücke als einzelne Views im Fließlayout: Wörter, Emotes, Links, Erwähnungen.
-struct ChatTextPieces: View {
     @Environment(AppSession.self) private var session
     let text: String
     let emotes: [ChatEmote]
-    let italic: Bool
-    let tint: Color?
 
     var body: some View {
-        let segments = ChatText.segments(text, emotes: emotes, extra: session.chat.assets.emotes)
-        ForEach(Array(pieces(segments).enumerated()), id: \.offset) { _, piece in
-            switch piece {
-            case .word(let word):
-                Text(word)
-                    .font(.subheadline)
-                    .italic(italic)
-                    .foregroundStyle(tint ?? Palette.text)
-            case .emote(let name, let url):
-                RemoteImage(url: url, size: 24)
-                    .accessibilityLabel(name)
-            case .mention(let text):
-                Text(text)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Palette.amber)
-            case .link(let text, let href):
-                if let destination = URL(string: href) {
-                    Link(text, destination: destination)
-                        .font(.subheadline)
-                        .foregroundStyle(Palette.blue)
-                } else {
-                    Text(text).font(.subheadline)
-                }
-            }
-        }
-    }
-
-    enum Piece {
-        case word(String)
-        case emote(name: String, url: String)
-        case mention(String)
-        case link(String, String)
-    }
-
-    /// Text in Wörter zerlegen, damit das Fließlayout umbrechen kann; Leerzeichen bleiben am Wort.
-    private func pieces(_ segments: [ChatSegment]) -> [Piece] {
-        var result: [Piece] = []
-        for segment in segments {
-            switch segment {
-            case .text(let text):
-                var current = ""
-                for character in text {
-                    current.append(character)
-                    if character == " " {
-                        result.append(.word(current))
-                        current = ""
-                    }
-                }
-                if !current.isEmpty { result.append(.word(current)) }
-            case .emote(let name, _, let url2, _):
-                result.append(.emote(name: name, url: url2))
-            case .mention(let text, _):
-                result.append(.mention(text))
-            case .link(let text, let href):
-                result.append(.link(text, href))
-            }
-        }
-        return result
-    }
-}
-
-/// Bild aus dem Netz (Emotes, Badges) mit festem Platz.
-struct RemoteImage: View {
-    let url: String
-    var size: CGFloat
-
-    var body: some View {
-        AsyncImage(url: URL(string: url), transaction: Transaction(animation: nil)) { phase in
-            if let image = phase.image {
-                image.resizable().scaledToFit()
-            } else {
-                Color.clear
-            }
-        }
-        .frame(height: size)
-        .frame(minWidth: size * 0.6, maxWidth: size * 3.2)
+        let chat = session.chat
+        let segments = ChatText.segments(text, emotes: emotes, extra: chat.assets.emotes)
+        ChatRichText.text(segments, images: chat.images)
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .accessibilityLabel(ChatRichText.plain(segments))
     }
 }
 

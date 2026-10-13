@@ -18,13 +18,18 @@ final class ChatTests: XCTestCase {
 
     func testSegmentsFindLinksMentionsAndExtraEmotes() {
         let extra = ["monkaS": ChatExtraEmote(url: "https://cdn.betterttv.net/emote/x/1x", url2: "https://cdn.betterttv.net/emote/x/2x", provider: "bttv", channel: nil)]
-        let segments = ChatText.segments("@lea_k, schau auf signalwerk.live monkaS https://twitch.tv/x", emotes: [], extra: extra)
-        XCTAssertEqual(segments[0], .mention(text: "@lea_k", login: "lea_k"))
-        XCTAssertEqual(segments[1], .text(", schau auf "))
-        XCTAssertEqual(segments[2], .link(text: "signalwerk.live", href: "https://signalwerk.live"))
-        XCTAssertEqual(segments[3], .text(" "))
-        XCTAssertEqual(segments[4], .emote(name: "monkaS", url: "https://cdn.betterttv.net/emote/x/1x", url2: "https://cdn.betterttv.net/emote/x/2x", provider: "bttv"))
-        XCTAssertEqual(segments[6], .link(text: "https://twitch.tv/x", href: "https://twitch.tv/x"))
+        // Endungen wie im Dashboard (lib/chat/segments.ts); .live gehört nicht dazu.
+        let segments = ChatText.segments("@lea_k, schau auf twitch.tv/signalwerk_live monkaS https://twitch.tv/x", emotes: [], extra: extra)
+        XCTAssertEqual(segments, [
+            .mention(text: "@lea_k", login: "lea_k"),
+            .text(", schau auf "),
+            .link(text: "twitch.tv/signalwerk_live", href: "https://twitch.tv/signalwerk_live"),
+            .text(" "),
+            .emote(name: "monkaS", url: "https://cdn.betterttv.net/emote/x/1x", url2: "https://cdn.betterttv.net/emote/x/2x", provider: "bttv"),
+            .text(" "),
+            .link(text: "https://twitch.tv/x", href: "https://twitch.tv/x"),
+        ])
+        XCTAssertEqual(ChatText.segments("signalwerk.live", emotes: []), [.text("signalwerk.live")])
         // Kein Link: unbekannte Endung, kein Erwähnungs-Login.
         XCTAssertEqual(ChatText.segments("bitte.nicht @ab", emotes: []), [.text("bitte.nicht @ab")])
     }

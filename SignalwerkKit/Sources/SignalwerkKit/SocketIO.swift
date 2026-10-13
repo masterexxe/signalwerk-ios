@@ -131,7 +131,8 @@ public enum BinaryPacing {
 
 /// Verbindung zum Alert-Dienst. Der Zustand lebt auf einer eigenen Warteschlange, damit
 /// Live-Audio nicht vom Main-Thread abhängt; Rückrufe (Status, Ereignisse) kommen auf dem Main-Thread.
-public final class SocketIOClient: NSObject {
+/// Zustand nur auf `queue`, daher über Threads hinweg sicher.
+public final class SocketIOClient: NSObject, @unchecked Sendable {
     public enum Status: Equatable {
         case idle
         case connecting

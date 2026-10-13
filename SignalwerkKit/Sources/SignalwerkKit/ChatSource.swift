@@ -140,7 +140,7 @@ public final class LiveChatSource: ChatSource {
 }
 
 /// Chat der Demo: ein paar Zeilen zum Start, danach regelmäßig neue.
-public final class DemoChatSource: ChatSource {
+public final class DemoChatSource: ChatSource, @unchecked Sendable {
     public var onConnection: ((ChatConnection) -> Void)?
     public var onUpdates: ((String, [ChatUpdate]) -> Void)?
     public var onAssets: ((String, ChatAssets) -> Void)?
