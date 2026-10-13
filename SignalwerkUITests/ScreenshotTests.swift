@@ -105,7 +105,7 @@ final class ScreenshotTests: XCTestCase {
 
         if isPad {
             snap("01-pult")
-            probe("antwortzeiten-pult", rounds: 8, pause: 8)
+            probe("antwortzeiten-pult", rounds: 4, pause: 5)
             snap("01b-pult-spaeter")
             open(sidebar: "nav-queue")
             sleep(1)

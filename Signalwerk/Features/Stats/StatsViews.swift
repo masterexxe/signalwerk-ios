@@ -64,15 +64,24 @@ struct StatsScreen: View {
         .toolbar {
             EmergencyToolbar()
             if store.channels.count > 1 {
-                ToolbarItem(placement: .topBarLeading) {
+                // Name des Kanals mit Pfeil; ein Label zeigte in der Leiste nur den Pfeil.
+                ToolbarItem(placement: .principal) {
                     Menu {
                         ForEach(store.channels) { channel in
                             Button(channel.displayName) { store.select(channel.login) }
                         }
                     } label: {
-                        Label(store.channels.first(where: { $0.login == store.login })?.displayName ?? "Kanal", systemImage: "chevron.down")
-                            .labelStyle(.titleAndIcon)
+                        HStack(spacing: 6) {
+                            Text(store.channels.first(where: { $0.login == store.login })?.displayName ?? "Kanal")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(Palette.text)
+                                .lineLimit(1)
+                            Image(systemName: "chevron.down")
+                                .font(.caption2)
+                                .foregroundStyle(Palette.textMuted)
+                        }
                     }
+                    .accessibilityLabel("Kanal wählen")
                 }
             }
         }

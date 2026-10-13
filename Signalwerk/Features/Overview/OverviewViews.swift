@@ -99,9 +99,10 @@ struct ViewerChart: View {
             }
         }
         .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: 5)) { _ in
+            // Wenige Zeitmarken, überlappende Beschriftungen fallen weg (schmale iPhones).
+            AxisMarks(values: .automatic(desiredCount: 4)) { _ in
                 AxisGridLine().foregroundStyle(Palette.line)
-                AxisValueLabel(format: .dateTime.hour().minute())
+                AxisValueLabel(format: .dateTime.hour().minute(), collisionResolution: .greedy)
                     .foregroundStyle(Palette.textSubtle)
             }
         }
