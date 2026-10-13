@@ -71,7 +71,9 @@ final class ChatTests: XCTestCase {
         XCTAssertEqual(SocketCodec.parse(#"40{"sid":"abc"}"#), .connected)
         XCTAssertEqual(SocketCodec.parse("41"), .disconnected)
         XCTAssertEqual(SocketCodec.parse(#"44{"message":"Nein"}"#), .connectError("Nein"))
-        XCTAssertEqual(SocketCodec.parse(#"431[{"ok":true}]"#), .ack(id: 31, argumentsJSON: #"[{"ok":true}]"#))
+        // Engine.IO "4", Socket.IO "3" (Ack), dann die ID: "431" ist Ack 1, "4312" Ack 12.
+        XCTAssertEqual(SocketCodec.parse(#"431[{"ok":true}]"#), .ack(id: 1, argumentsJSON: #"[{"ok":true}]"#))
+        XCTAssertEqual(SocketCodec.parse("4312[]"), .ack(id: 12, argumentsJSON: "[]"))
         guard case .event(let name, let json, let ackId) = SocketCodec.parse(#"42["chat-state",{"channel":"x","connected":true}]"#) else {
             return XCTFail("kein Ereignis")
         }

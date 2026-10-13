@@ -35,7 +35,8 @@ final class DecodingTests: XCTestCase {
 
     func testOverview() throws {
         let overview = try decode(Overview.self, "overview")
-        XCTAssertEqual(overview.stats.todaySumLabel, "15,50 €")
+        // Das Dashboard formatiert mit Intl.NumberFormat: geschütztes Leerzeichen vor dem €.
+        XCTAssertEqual(overview.stats.todaySumLabel, "15,50\u{00A0}€")
         XCTAssertEqual(overview.pending.total, overview.pending.donations + overview.pending.subBombs)
         XCTAssertEqual(overview.stream?.login, "signalwerk_live")
         XCTAssertEqual(overview.stream?.series.points.count, 0)

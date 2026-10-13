@@ -10,7 +10,11 @@ public enum ServerAddress {
     public static func normalize(_ input: String) -> URL? {
         var text = input.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty, !text.contains(" ") else { return nil }
-        if !text.lowercased().hasPrefix("http://") && !text.lowercased().hasPrefix("https://") {
+        if let marker = text.range(of: "://") {
+            // Ausdrückliches Schema: nur http und https.
+            let scheme = text[..<marker.lowerBound].lowercased()
+            guard scheme == "http" || scheme == "https" else { return nil }
+        } else {
             text = "https://" + text
         }
         guard var components = URLComponents(string: text),

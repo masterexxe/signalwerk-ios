@@ -69,6 +69,24 @@ final class ScreenshotTests: XCTestCase {
         }
     }
 
+    /// Antwortet die App? Dauer einer einfachen Abfrage in Abständen, als Anhang. Bleibt die App
+    /// hängen, sieht man hier, ab wann.
+    private func probe(_ name: String, rounds: Int, pause: UInt32) {
+        var lines: [String] = []
+        let start = Date()
+        for round in 0..<rounds {
+            let started = Date()
+            let found = app.buttons["notbremse"].exists
+            let millis = Int(Date().timeIntervalSince(started) * 1000)
+            lines.append("t+\(Int(started.timeIntervalSince(start)))s: \(millis) ms, Notbremse \(found ? "da" : "fehlt")")
+            if round < rounds - 1 { sleep(pause) }
+        }
+        let attachment = XCTAttachment(string: lines.joined(separator: "\n"))
+        attachment.name = (isPad ? "ipad-" : "iphone-") + name + ".txt"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
     /// Baum der Bedienelemente als Text, zum Nachsehen im Ergebnis (Zweig ci-results).
     private func dumpTree(_ name: String) {
         let started = Date()
@@ -87,7 +105,8 @@ final class ScreenshotTests: XCTestCase {
 
         if isPad {
             snap("01-pult")
-            dumpTree("baum-pult")
+            probe("antwortzeiten-pult", rounds: 8, pause: 8)
+            snap("01b-pult-spaeter")
             open(sidebar: "nav-queue")
             sleep(1)
             snap("02-spenden")

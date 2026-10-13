@@ -75,11 +75,24 @@ jobs:
         continue-on-error: true
         run: |
           set -o pipefail
+          UDID="${{ steps.sim.outputs.ipad }}"
+          # Simulator vorher starten, damit das Log der App von Anfang an mitläuft.
+          xcrun simctl bootstatus "$UDID" -b > /dev/null 2>&1 || true
+          xcrun simctl spawn "$UDID" log stream --style compact --level debug \
+            --predicate 'process == "Signalwerk"' > build/results/ipad-app.log 2>&1 &
+          LOGGER=$!
+          bash scripts/sample-app.sh build/results ipad &
+          SAMPLER=$!
+          status=0
           xcodebuild test \
             -project Signalwerk.xcodeproj -scheme Signalwerk \
-            -destination "id=${{ steps.sim.outputs.ipad }}" \
+            -destination "id=$UDID" \
             -resultBundlePath build/iPad.xcresult \
-            CODE_SIGNING_ALLOWED=NO 2>&1 | tee build/results/ipad.log | xcbeautify --renderer github-actions
+            CODE_SIGNING_ALLOWED=NO 2>&1 | tee build/results/ipad.log | xcbeautify --renderer github-actions || status=$?
+          kill "$LOGGER" "$SAMPLER" 2>/dev/null || true
+          # Das App-Log kann groß werden: nur das Ende behalten.
+          tail -n 4000 build/results/ipad-app.log > build/results/ipad-app.tail && mv build/results/ipad-app.tail build/results/ipad-app.log
+          exit $status
 
       - name: Ergebnisse aufbereiten
         if: always()

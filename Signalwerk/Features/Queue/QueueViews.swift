@@ -196,7 +196,8 @@ struct QueueRow: View {
         }
         .padding(.vertical, 6)
         .opacity(item.isBlocked ? 0.55 : 1)
-        .accessibilityElement(children: .combine)
+        // Mit Tasten in der Zeile bleiben die Tasten einzeln erreichbar; sonst eine Zeile am Stück.
+        .accessibilityElement(children: inlineActions && item.isPending ? .contain : .combine)
     }
 }
 
