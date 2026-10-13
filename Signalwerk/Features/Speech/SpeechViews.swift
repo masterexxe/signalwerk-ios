@@ -47,7 +47,7 @@ struct TTSPanel: View {
                         .focused($focused)
                         .scrollContentBackground(.hidden)
                         .foregroundStyle(Palette.text)
-                        .frame(minHeight: compact ? 70 : 110, maxHeight: compact ? 110 : 200)
+                        .frame(minHeight: compact ? 90 : 110, maxHeight: compact ? 90 : 200)
                         .accessibilityIdentifier("tts-text")
                 }
                 .padding(8)

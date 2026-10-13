@@ -7,27 +7,46 @@ import SignalwerkKit
 struct PultScreen: View {
     @Environment(AppSession.self) private var session
 
+    /// Höhe der Kopfzeile und der TTS-Platte; beide brauchen nicht mehr Platz.
+    private static let stripHeight: CGFloat = 50
+    private static let ttsHeight: CGFloat = 300
+    private static let gap: CGFloat = 12
+
     var body: some View {
         GeometryReader { geometry in
-            let wide = geometry.size.width >= 1000
-            VStack(spacing: 12) {
+            // Jede Platte bekommt eine feste Größe. Sonst handeln die verschachtelten Stapel ihre
+            // Größen bei jeder Änderung neu aus (Chatzeile, Bild, Uhr), und am iPad hing der
+            // Hauptthread dann dauerhaft in der Layout-Berechnung.
+            let gap = PultScreen.gap
+            let width = max(0, geometry.size.width - gap * 2)
+            let height = max(0, geometry.size.height - gap * 2)
+            let wide = width >= 976
+            let bodyHeight = max(320, height - PultScreen.stripHeight - gap)
+            let queueWidth = (width * (wide ? 0.32 : 0.46)).rounded()
+            let chatWidth = wide ? (width * 0.3).rounded() : 0
+            let middleWidth = max(0, width - queueWidth - chatWidth - gap * (wide ? 2 : 1))
+            let ttsHeight = min(PultScreen.ttsHeight, (bodyHeight * 0.6).rounded())
+            VStack(alignment: .leading, spacing: gap) {
                 PultStatusStrip()
-                HStack(alignment: .top, spacing: 12) {
+                    .frame(width: width, height: PultScreen.stripHeight)
+                HStack(alignment: .top, spacing: gap) {
                     PultQueuePlate()
-                        .frame(width: wide ? geometry.size.width * 0.32 : geometry.size.width * 0.46)
-                    VStack(spacing: 12) {
+                        .frame(width: queueWidth, height: bodyHeight)
+                    VStack(spacing: gap) {
                         PultSoundsPlate()
+                            .frame(width: middleWidth, height: max(0, bodyHeight - ttsHeight - gap))
                         TTSPanel(compact: true)
+                            .frame(width: middleWidth, height: ttsHeight, alignment: .top)
                     }
-                    .frame(maxWidth: .infinity)
+                    .frame(width: middleWidth, height: bodyHeight, alignment: .top)
                     if wide {
                         ChatPanel(framed: true)
-                            .frame(width: geometry.size.width * 0.3)
+                            .frame(width: chatWidth, height: bodyHeight)
                     }
                 }
-                .frame(maxHeight: .infinity, alignment: .top)
+                .frame(width: width, height: bodyHeight, alignment: .topLeading)
             }
-            .padding(12)
+            .padding(gap)
         }
         .background(Palette.background)
         .navigationTitle("Pult")

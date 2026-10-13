@@ -11,7 +11,8 @@ struct ChatScreen: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 EmergencyToolbar()
-                ToolbarItem(placement: .topBarLeading) {
+                // Kanalwahl statt Titel: Neben der Notbremse ist am iPhone kein Platz für beides.
+                ToolbarItem(placement: .principal) {
                     ChatChannelMenu()
                 }
             }
@@ -91,9 +92,10 @@ struct ChatPanel: View {
                                     if case .message(let message) = line { selected = message }
                                 }
                         }
+                        // Nur echte Wechsel schreiben: Jede Zustandsänderung löst ein neues Layout aus.
                         Color.clear.frame(height: 1).id("bottom")
-                            .onAppear { atBottom = true }
-                            .onDisappear { atBottom = false }
+                            .onAppear { if !atBottom { atBottom = true } }
+                            .onDisappear { if atBottom { atBottom = false } }
                     }
                     .padding(.horizontal, 14)
                     .padding(.vertical, 8)
