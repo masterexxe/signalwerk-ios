@@ -40,9 +40,31 @@ final class ScreenshotTests: XCTestCase {
         let item = element(identifier)
         if !item.waitForExistence(timeout: 5) {
             // Hochformat: Seitenleiste ist eingeklappt.
+            snap("fehlt-\(identifier)")
             app.navigationBars.buttons.element(boundBy: 0).tap()
         }
         if item.waitForExistence(timeout: 5) { item.tap() }
+    }
+
+    /// Tippen über die Kennung; fehlt das Element, ein Bild davon, wie es aussah.
+    private func tap(_ identifier: String) {
+        let item = element(identifier)
+        if item.waitForExistence(timeout: 5) {
+            item.tap()
+        } else {
+            snap("fehlt-\(identifier)")
+            XCTFail("\(identifier) nicht gefunden")
+        }
+    }
+
+    /// Baum der Bedienelemente als Text, zum Nachsehen im Ergebnis (Zweig ci-results).
+    private func dumpTree(_ name: String) {
+        let started = Date()
+        let tree = app.debugDescription
+        let attachment = XCTAttachment(string: "Dauer \(Int(Date().timeIntervalSince(started) * 1000)) ms, \(tree.count) Zeichen\n\n" + tree)
+        attachment.name = (isPad ? "ipad-" : "iphone-") + name + ".txt"
+        attachment.lifetime = .keepAlways
+        add(attachment)
     }
 
     func testDemoTour() throws {
@@ -53,6 +75,7 @@ final class ScreenshotTests: XCTestCase {
 
         if isPad {
             snap("01-pult")
+            dumpTree("baum-pult")
             open(sidebar: "nav-queue")
             sleep(1)
             snap("02-spenden")
@@ -104,11 +127,13 @@ final class ScreenshotTests: XCTestCase {
             snap("05-chat")
             open(tab: "Mehr")
             sleep(1)
-            app.buttons["Übersicht"].firstMatch.tap()
+            snap("06-mehr")
+            tap("more-overview")
             sleep(2)
             snap("06-uebersicht")
             app.navigationBars.buttons.element(boundBy: 0).tap()
-            app.buttons["Statistik"].firstMatch.tap()
+            sleep(1)
+            tap("more-stats")
             sleep(2)
             snap("07-statistik")
         }

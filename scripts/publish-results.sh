@@ -3,7 +3,8 @@
 # Repo klein bleibt; mit APPEND=1 kommen Dateien zum vorhandenen Stand dazu (TestFlight-Job).
 # Braucht contents: write für GITHUB_TOKEN.
 set -euo pipefail
-DIR="$1"
+# Absoluter Pfad: Das Skript wechselt gleich in ein eigenes Arbeitsverzeichnis.
+DIR=$(cd "$1" && pwd)
 BRANCH=ci-results
 REMOTE="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 WORK=$(mktemp -d)

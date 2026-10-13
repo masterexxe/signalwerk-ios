@@ -203,12 +203,15 @@ struct MoreScreen: View {
                 NavigationLink { OverviewScreen() } label: {
                     Label("Übersicht", systemImage: AppSection.overview.symbol)
                 }
+                .accessibilityIdentifier("more-overview")
                 NavigationLink { StatsScreen() } label: {
                     Label("Statistik", systemImage: AppSection.stats.symbol)
                 }
+                .accessibilityIdentifier("more-stats")
                 NavigationLink { SettingsScreen() } label: {
                     Label("Einstellungen", systemImage: AppSection.settings.symbol)
                 }
+                .accessibilityIdentifier("more-settings")
             }
             .listRowBackground(Palette.card)
         }
