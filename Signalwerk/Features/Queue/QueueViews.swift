@@ -4,6 +4,7 @@ import SignalwerkKit
 /// Spenden und Sub-Bombs: offene zuerst, Wischen zum Annehmen (rechts) oder Blockieren (links).
 struct QueueScreen: View {
     @Environment(AppSession.self) private var session
+    @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var selected: QueueItem?
 
     var body: some View {
@@ -24,7 +25,10 @@ struct QueueScreen: View {
                     .listRowBackground(Color.clear)
                 }
                 ForEach(store.items) { item in
-                    QueueRow(item: item, busy: store.busy.contains(item.key))
+                    // Am iPad (breite Ansicht) Tasten direkt in der Zeile, am iPhone wischen.
+                    QueueRow(item: item, busy: store.busy.contains(item.key), inlineActions: sizeClass == .regular && session.can(.moderateDonations)) { action in
+                        Task { await store.decide(item, action) }
+                    }
                         .contentShape(Rectangle())
                         .onTapGesture { selected = item }
                         .swipeActions(edge: .leading, allowsFullSwipe: true) {
