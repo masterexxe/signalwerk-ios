@@ -1,0 +1,47 @@
+{
+  "user": {
+    "id": "cmv3q0qq00000iq7dbdnvdryi",
+    "name": "Admin",
+    "email": "admin@signalwerk.live",
+    "role": "owner",
+    "twitchLogin": null
+  },
+  "permissions": [
+    "donation.moderate",
+    "donation.deleteAll",
+    "donation.test",
+    "sound.play",
+    "alerts.stop",
+    "sound.manage",
+    "voice.manage",
+    "config.manage",
+    "tts.send",
+    "widget.reload",
+    "widget.token",
+    "livevoice.start",
+    "overlay.operate",
+    "overlay.manage",
+    "audit.read",
+    "user.manage",
+    "chat.moderate",
+    "stream.edit"
+  ],
+  "device": {
+    "id": "gUgrWhBGHflbhPs2cRYH",
+    "name": "iPad Prüfung klp2h",
+    "platform": "ipados",
+    "createdAt": "2026-10-13T11:01:04.978Z",
+    "lastSeenAt": "2026-10-13T11:01:04.978Z",
+    "push": null
+  },
+  "server": {
+    "release": "2.4.0",
+    "api": 1,
+    "origin": "http://localhost:8080",
+    "socketUrl": "http://localhost:8080",
+    "features": {
+      "chat": true,
+      "push": false
+    }
+  }
+}

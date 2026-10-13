@@ -1,0 +1,59 @@
+{
+  "filter": "open",
+  "items": [
+    {
+      "kind": "donation",
+      "id": "aa4a2091-f3f9-4be0-8662-8d6e837befc5",
+      "name": "AppBklp2h",
+      "message": "Grüße aus der App-Prüfung AppBklp2h",
+      "amount": "3,50 €",
+      "voice": "default",
+      "state": "pending",
+      "at": "2026-10-13T11:01:05.302Z"
+    },
+    {
+      "kind": "donation",
+      "id": "8b138512-5232-4945-8c93-3e9c16a4f8e4",
+      "name": "AppAklp2h",
+      "message": "Grüße aus der App-Prüfung AppAklp2h",
+      "amount": "7,00 €",
+      "voice": "default",
+      "state": "pending",
+      "at": "2026-10-13T11:01:05.284Z"
+    },
+    {
+      "kind": "donation",
+      "id": "13ef3f88-20f3-49a4-9af0-7bfbd71742da",
+      "name": "AppSSEkftya",
+      "message": "Grüße aus der App-Prüfung AppSSEkftya",
+      "amount": "5,00 €",
+      "voice": "default",
+      "state": "pending",
+      "at": "2026-10-13T10:56:32.900Z"
+    },
+    {
+      "kind": "subbomb",
+      "id": "636a6868-c644-11f1-8328-02fc00000001",
+      "name": "Gross",
+      "message": "",
+      "amount": "12",
+      "voice": "Default",
+      "state": "pending",
+      "at": "2026-10-12T13:54:05.318Z"
+    },
+    {
+      "kind": "donation",
+      "id": "a933b05c-a6e1-4e95-929a-9022d0c7b283",
+      "name": "MaxPower",
+      "message": "Grüße aus Hamburg, macht weiter so!",
+      "amount": "25,00 €",
+      "voice": "echo",
+      "state": "pending",
+      "at": "2026-10-12T13:52:05.267Z"
+    }
+  ],
+  "pending": {
+    "donations": 4,
+    "subBombs": 1
+  }
+}

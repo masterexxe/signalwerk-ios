@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "data": {
+    "widgets": 0,
+    "outdated": 0,
+    "warning": "Kein OBS-Widget verbunden. Die Warteschlange im Alert-Dienst ist trotzdem geleert."
+  },
+  "warning": "Kein OBS-Widget verbunden. Die Warteschlange im Alert-Dienst ist trotzdem geleert."
+}

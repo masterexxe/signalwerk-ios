@@ -1,0 +1,194 @@
+{
+  "ok": true,
+  "channel": "signalwerk_live",
+  "connected": true,
+  "lines": [
+    {
+      "kind": "message",
+      "id": "b9d229c7-f159-492a-836f-6ceb46bc7277",
+      "at": 1791890457564,
+      "userId": "4242",
+      "login": "lea_k",
+      "name": "Lea_K",
+      "color": "#1E90FF",
+      "badges": [
+        "subscriber/12"
+      ],
+      "months": 14,
+      "text": "Kappa Grüße 👋🏽 aus Köln Kappa",
+      "emotes": [
+        {
+          "id": "25",
+          "start": 0,
+          "end": 4
+        },
+        {
+          "id": "25",
+          "start": 24,
+          "end": 28
+        }
+      ],
+      "action": false,
+      "first": false,
+      "returning": false,
+      "bits": 0,
+      "reply": null,
+      "shared": null,
+      "deleted": false,
+      "cleared": null
+    },
+    {
+      "kind": "message",
+      "id": "eaa419d2-1bc2-4dea-88e7-15d632f9e580",
+      "at": 1791890457578,
+      "userId": "138715",
+      "login": "bytewolf",
+      "name": "ByteWolf",
+      "color": "#9ACD32",
+      "badges": [],
+      "months": 0,
+      "text": "@lea_k schau mal auf signalwerk.live monkaS",
+      "emotes": [],
+      "action": false,
+      "first": false,
+      "returning": false,
+      "bits": 0,
+      "reply": null,
+      "shared": null,
+      "deleted": false,
+      "cleared": null
+    }
+  ],
+  "assets": {
+    "badges": {
+      "moderator/1": {
+        "url": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1",
+        "url2": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2",
+        "title": "Moderator"
+      },
+      "broadcaster/1": {
+        "url": "https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/1",
+        "url2": "https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/2",
+        "title": "Broadcaster"
+      },
+      "vip/1": {
+        "url": "https://static-cdn.jtvnw.net/badges/v1/b817aba4-fad8-49e2-b88a-7cc744dfa6ec/1",
+        "url2": "https://static-cdn.jtvnw.net/badges/v1/b817aba4-fad8-49e2-b88a-7cc744dfa6ec/2",
+        "title": "VIP"
+      },
+      "subscriber/0": {
+        "url": "https://static-cdn.jtvnw.net/badges/v1/sub-0/1",
+        "url2": "https://static-cdn.jtvnw.net/badges/v1/sub-0/2",
+        "title": "Abonnent (0 Monate)"
+      },
+      "subscriber/3": {
+        "url": "https://static-cdn.jtvnw.net/badges/v1/sub-3/1",
+        "url2": "https://static-cdn.jtvnw.net/badges/v1/sub-3/2",
+        "title": "Abonnent (3 Monate)"
+      },
+      "subscriber/6": {
+        "url": "https://static-cdn.jtvnw.net/badges/v1/sub-6/1",
+        "url2": "https://static-cdn.jtvnw.net/badges/v1/sub-6/2",
+        "title": "Abonnent (6 Monate)"
+      },
+      "subscriber/12": {
+        "url": "https://static-cdn.jtvnw.net/badges/v1/sub-12/1",
+        "url2": "https://static-cdn.jtvnw.net/badges/v1/sub-12/2",
+        "title": "Abonnent (12 Monate)"
+      }
+    },
+    "emotes": {
+      "CatBag": {
+        "url": "https://cdn.frankerfacez.com/emote/25927/1",
+        "url2": "https://cdn.frankerfacez.com/emote/25927/2",
+        "provider": "ffz"
+      },
+      "monkaS": {
+        "url": "https://cdn.betterttv.net/emote/5e76d338d6581c3724c0f0b2/1x",
+        "url2": "https://cdn.betterttv.net/emote/5e76d338d6581c3724c0f0b2/2x",
+        "provider": "bttv"
+      },
+      "FeelsGoodMan": {
+        "url": "https://cdn.betterttv.net/emote/566c9fde65dbbdab32ec053e/1x",
+        "url2": "https://cdn.betterttv.net/emote/566c9fde65dbbdab32ec053e/2x",
+        "provider": "bttv"
+      },
+      "EZ": {
+        "url": "https://cdn.7tv.app/emote/01EZ/1x.webp",
+        "url2": "https://cdn.7tv.app/emote/01EZ/2x.webp",
+        "provider": "7tv"
+      },
+      "Clap": {
+        "url": "https://cdn.7tv.app/emote/01CLAP2/1x.webp",
+        "url2": "https://cdn.7tv.app/emote/01CLAP2/2x.webp",
+        "provider": "7tv",
+        "channel": true
+      },
+      "RainTime": {
+        "url": "https://cdn.7tv.app/emote/01RAIN/1x.webp",
+        "url2": "https://cdn.7tv.app/emote/01RAIN/2x.webp",
+        "provider": "7tv"
+      },
+      "OMEGALUL": {
+        "url": "https://cdn.frankerfacez.com/emote/128054/1",
+        "url2": "https://cdn.frankerfacez.com/emote/128054/2",
+        "provider": "ffz",
+        "channel": true
+      },
+      "LULW": {
+        "url": "https://cdn.frankerfacez.com/emote/139407/1",
+        "url2": "https://cdn.frankerfacez.com/emote/139407/2",
+        "provider": "ffz",
+        "channel": true
+      },
+      "monkaW": {
+        "url": "https://cdn.betterttv.net/emote/5ed3bde8f54be95e2a838279/1x",
+        "url2": "https://cdn.betterttv.net/emote/5ed3bde8f54be95e2a838279/2x",
+        "provider": "bttv",
+        "channel": true
+      },
+      "catKISS": {
+        "url": "https://cdn.betterttv.net/emote/5f1b0186cf6d2144653d2970/1x",
+        "url2": "https://cdn.betterttv.net/emote/5f1b0186cf6d2144653d2970/2x",
+        "provider": "bttv",
+        "channel": true
+      },
+      "KEKW": {
+        "url": "https://cdn.7tv.app/emote/01KEKW/1x.webp",
+        "url2": "https://cdn.7tv.app/emote/01KEKW/2x.webp",
+        "provider": "7tv",
+        "channel": true
+      },
+      "KEKWait": {
+        "url": "https://cdn.7tv.app/emote/01KEKWAIT/1x.webp",
+        "url2": "https://cdn.7tv.app/emote/01KEKWAIT/2x.webp",
+        "provider": "7tv",
+        "channel": true
+      },
+      "peepoHappy": {
+        "url": "https://cdn.7tv.app/emote/01HAPPY/1x.webp",
+        "url2": "https://cdn.7tv.app/emote/01HAPPY/2x.webp",
+        "provider": "7tv",
+        "channel": true
+      },
+      "peepoSad": {
+        "url": "https://cdn.7tv.app/emote/01SAD/1x.webp",
+        "url2": "https://cdn.7tv.app/emote/01SAD/2x.webp",
+        "provider": "7tv",
+        "channel": true
+      },
+      "catJAM": {
+        "url": "https://cdn.7tv.app/emote/01JAM/1x.webp",
+        "url2": "https://cdn.7tv.app/emote/01JAM/2x.webp",
+        "provider": "7tv",
+        "channel": true
+      },
+      "pepeLaugh": {
+        "url": "https://cdn.7tv.app/emote/01PEPEL/1x.webp",
+        "url2": "https://cdn.7tv.app/emote/01PEPEL/2x.webp",
+        "provider": "7tv",
+        "channel": true
+      }
+    }
+  }
+}

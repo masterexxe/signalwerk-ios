@@ -1,0 +1,19 @@
+{
+  "voices": [
+    {
+      "value": "default",
+      "name": "Standard",
+      "speed": null
+    },
+    {
+      "value": "echo",
+      "name": "Echo",
+      "speed": null
+    },
+    {
+      "value": "nova",
+      "name": "Nova",
+      "speed": null
+    }
+  ]
+}

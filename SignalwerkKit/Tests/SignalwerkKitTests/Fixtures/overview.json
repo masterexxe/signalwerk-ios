@@ -1,0 +1,77 @@
+{
+  "at": "2026-10-13T11:01:05.106Z",
+  "stats": {
+    "todayCount": 3,
+    "todaySumLabel": "15,50 €",
+    "totalCount": 28,
+    "pendingDonations": 2,
+    "pendingSubBombs": 1,
+    "todayTop": {
+      "name": "AppAkftya",
+      "amount": "7,00 €"
+    },
+    "lastDonation": {
+      "name": "AppSSEkftya",
+      "amount": "5,00 €",
+      "at": "2026-10-13T10:56:32.900Z"
+    },
+    "todaySubBombs": 0,
+    "todayGiftedSubs": 0
+  },
+  "pending": {
+    "donations": 2,
+    "subBombs": 1
+  },
+  "stream": {
+    "login": "signalwerk_live",
+    "live": false,
+    "title": "Sonntagsstream mit Gästen",
+    "category": "Just Chatting",
+    "startedAt": "2026-10-12T11:02:31.134Z",
+    "viewers": 0,
+    "chatters": 0,
+    "peak": 15275,
+    "average": 10165,
+    "series": {
+      "times": [],
+      "viewers": [],
+      "chatters": []
+    }
+  },
+  "system": {
+    "alertsReachable": true,
+    "alertsVersion": "2.4.0",
+    "streamlabs": "disabled",
+    "tts": "elevenlabs",
+    "widgets": {
+      "count": 0,
+      "outdated": 0
+    },
+    "liveVoice": {
+      "active": false,
+      "viewers": 0
+    },
+    "lastAlertAt": null,
+    "lastStopAt": null
+  },
+  "channels": {
+    "defaultLogin": "signalwerk_live",
+    "channels": [
+      {
+        "login": "signalwerk_live",
+        "displayName": "Signalwerk Live",
+        "own": true
+      },
+      {
+        "login": "gastshow",
+        "displayName": "Gastshow",
+        "own": false
+      },
+      {
+        "login": "lostmod",
+        "displayName": "Lostmod",
+        "own": false
+      }
+    ]
+  }
+}

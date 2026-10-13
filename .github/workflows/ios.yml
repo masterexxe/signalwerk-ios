@@ -1,0 +1,198 @@
+# Cloud-Build der Signalwerk-App: bauen, Kern und Oberfläche testen (iPhone und iPad),
+# Bilder ablegen, auf Wunsch zu TestFlight hochladen.
+#
+# TestFlight: über "Run workflow" mit Haken "Danach zu TestFlight hochladen" oder mit
+# [testflight] in der Commit-Nachricht. Braucht die Secrets APPLE_TEAM_ID, ASC_KEY_ID,
+# ASC_ISSUER_ID und ASC_KEY_P8 (App-Store-Connect-API-Schlüssel mit Rolle Admin).
+name: iOS
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+  workflow_dispatch:
+    inputs:
+      testflight:
+        description: "Danach zu TestFlight hochladen"
+        type: boolean
+        default: false
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Bauen und testen
+    runs-on: macos-26
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Xcode wählen
+        run: |
+          ls -d /Applications/Xcode*.app || true
+          XCODE=$(ls -d /Applications/Xcode_*.app 2>/dev/null | grep -vi beta | sort -V | tail -1)
+          [ -n "$XCODE" ] || XCODE=/Applications/Xcode.app
+          sudo xcode-select -s "$XCODE"
+          xcodebuild -version | tee build-xcode.txt
+          command -v xcbeautify >/dev/null || brew install xcbeautify
+          mkdir -p build/results
+
+      - name: Xcode-Projekt erzeugen
+        run: |
+          brew list xcodegen >/dev/null 2>&1 || brew install xcodegen
+          xcodegen generate
+
+      - name: Kern testen (SignalwerkKit)
+        id: kit
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          (cd SignalwerkKit && swift test 2>&1) | tee build/results/kit.log
+
+      - name: Simulatoren wählen
+        id: sim
+        run: python3 scripts/pick-simulators.py | tee -a "$GITHUB_OUTPUT"
+
+      - name: Bauen und Oberfläche testen (iPhone)
+        id: iphone
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project Signalwerk.xcodeproj -scheme Signalwerk \
+            -destination "id=${{ steps.sim.outputs.iphone }}" \
+            -resultBundlePath build/iPhone.xcresult \
+            CODE_SIGNING_ALLOWED=NO 2>&1 | tee build/results/iphone.log | xcbeautify --renderer github-actions
+
+      - name: Oberfläche testen (iPad)
+        id: ipad
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project Signalwerk.xcodeproj -scheme Signalwerk \
+            -destination "id=${{ steps.sim.outputs.ipad }}" \
+            -resultBundlePath build/iPad.xcresult \
+            CODE_SIGNING_ALLOWED=NO 2>&1 | tee build/results/ipad.log | xcbeautify --renderer github-actions
+
+      - name: Ergebnisse aufbereiten
+        if: always()
+        run: |
+          cp build-xcode.txt build/results/xcode.txt || true
+          echo "Simulatoren: ${{ steps.sim.outputs.iphone_name }} / ${{ steps.sim.outputs.ipad_name }} (${{ steps.sim.outputs.runtime }})" > build/results/simulators.txt
+          printf 'kit=%s\niphone=%s\nipad=%s\n' "${{ steps.kit.outcome }}" "${{ steps.iphone.outcome }}" "${{ steps.ipad.outcome }}" > build/results/outcome.txt
+          python3 scripts/export-results.py build/results iPhone=build/iPhone.xcresult iPad=build/iPad.xcresult || true
+
+      - name: Ergebnisse ablegen (Zweig ci-results)
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash scripts/publish-results.sh build/results
+
+      - name: Gesamtergebnis
+        run: |
+          echo "Kern: ${{ steps.kit.outcome }}, iPhone: ${{ steps.iphone.outcome }}, iPad: ${{ steps.ipad.outcome }}"
+          [ "${{ steps.kit.outcome }}" = success ] && [ "${{ steps.iphone.outcome }}" = success ] && [ "${{ steps.ipad.outcome }}" = success ]
+
+  testflight:
+    name: TestFlight
+    needs: build
+    if: ${{ (github.event_name == 'workflow_dispatch' && inputs.testflight) || contains(github.event.head_commit.message, '[testflight]') }}
+    runs-on: macos-26
+    timeout-minutes: 60
+    env:
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Xcode wählen
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_*.app 2>/dev/null | grep -vi beta | sort -V | tail -1)
+          [ -n "$XCODE" ] || XCODE=/Applications/Xcode.app
+          sudo xcode-select -s "$XCODE"
+          xcodebuild -version
+          command -v xcbeautify >/dev/null || brew install xcbeautify
+          mkdir -p build/results
+
+      - name: Xcode-Projekt erzeugen
+        run: |
+          brew list xcodegen >/dev/null 2>&1 || brew install xcodegen
+          xcodegen generate
+
+      - name: Zugang zu App Store Connect
+        run: |
+          missing=""
+          for name in APPLE_TEAM_ID ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8; do
+            [ -n "${!name}" ] || missing="$missing $name"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Secrets fehlen:$missing (Repo → Settings → Secrets and variables → Actions)"
+            echo "Secrets fehlen:$missing" > build/results/testflight.md
+            exit 1
+          fi
+          mkdir -p "$RUNNER_TEMP/keys"
+          printf '%s\n' "$ASC_KEY_P8" > "$RUNNER_TEMP/keys/AuthKey_$ASC_KEY_ID.p8"
+
+      - name: Archivieren und hochladen
+        id: upload
+        run: |
+          set -o pipefail
+          BUILD=$((1000 + ${{ github.run_number }}))
+          KEY="$RUNNER_TEMP/keys/AuthKey_$ASC_KEY_ID.p8"
+          AUTH=(-allowProvisioningUpdates -authenticationKeyPath "$KEY" -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID")
+          # Ungesignet archivieren: Signiert wird beim Export mit dem Verteilungszertifikat von
+          # Apple (cloud signing). So braucht der Cloud-Build weder Zertifikate noch registrierte Geräte.
+          xcodebuild archive \
+            -project Signalwerk.xcodeproj -scheme Signalwerk -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/Signalwerk.xcarchive \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CURRENT_PROJECT_VERSION="$BUILD" \
+            CODE_SIGNING_ALLOWED=NO 2>&1 | tee build/results/archive.log | xcbeautify --renderer github-actions
+          # Berechtigungen (Push) in die App schreiben: ohne Signatur fehlen sie sonst nach dem
+          # Export. Vorläufig ad hoc signieren; der Export signiert endgültig für den App Store.
+          APP=build/Signalwerk.xcarchive/Products/Applications/Signalwerk.app
+          find "$APP" -depth \( -name "*.framework" -o -name "*.dylib" \) -print0 | xargs -0 -I{} codesign --force --sign - --timestamp=none "{}" || true
+          codesign --force --sign - --timestamp=none --entitlements Signalwerk/Signalwerk.entitlements "$APP"
+          codesign -d --entitlements :- "$APP" 2>/dev/null | tee build/results/entitlements.plist
+          cat > build/ExportOptions.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>${APPLE_TEAM_ID}</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>uploadSymbols</key><true/>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+          </dict>
+          </plist>
+          EOF
+          xcodebuild -exportArchive \
+            -archivePath build/Signalwerk.xcarchive \
+            -exportOptionsPlist build/ExportOptions.plist \
+            -exportPath build/export \
+            "${AUTH[@]}" 2>&1 | tee build/results/export.log
+          echo "Build $BUILD zu TestFlight hochgeladen." | tee build/results/testflight.md
+
+      - name: Ergebnis ablegen (Zweig ci-results)
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPEND: "1"
+        run: |
+          [ -f build/results/testflight.md ] || echo "TestFlight fehlgeschlagen, siehe archive.log und export.log." > build/results/testflight.md
+          bash scripts/publish-results.sh build/results
+
+      - name: Schlüssel entfernen
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/keys"

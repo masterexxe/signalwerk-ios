@@ -1,0 +1,29 @@
+{
+  "channel": "signalwerk_live",
+  "updates": [
+    {
+      "t": "line",
+      "line": {
+        "kind": "message",
+        "id": "9d56c236-4b63-4ccb-8c9b-a2cbfee086c1",
+        "at": 1791890457990,
+        "userId": "5555",
+        "login": "troll99",
+        "name": "Troll99",
+        "color": "#1E90FF",
+        "badges": [],
+        "months": 0,
+        "text": "spam spam",
+        "emotes": [],
+        "action": false,
+        "first": false,
+        "returning": false,
+        "bits": 0,
+        "reply": null,
+        "shared": null,
+        "deleted": false,
+        "cleared": null
+      }
+    }
+  ]
+}

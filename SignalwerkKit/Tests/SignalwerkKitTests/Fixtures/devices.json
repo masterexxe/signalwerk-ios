@@ -1,0 +1,32 @@
+{
+  "current": "gUgrWhBGHflbhPs2cRYH",
+  "devices": [
+    {
+      "id": "sY2g7NDKpPzQf7XvMBh8",
+      "name": "iPhone Web2 klp2h",
+      "platform": "ios",
+      "createdAt": "2026-10-13T11:01:09.539Z",
+      "lastSeenAt": "2026-10-13T11:01:09.557Z",
+      "push": null,
+      "own": true
+    },
+    {
+      "id": "gUgrWhBGHflbhPs2cRYH",
+      "name": "iPad Prüfung klp2h",
+      "platform": "ipados",
+      "createdAt": "2026-10-13T11:01:04.978Z",
+      "lastSeenAt": "2026-10-13T11:01:04.978Z",
+      "push": null,
+      "own": true
+    },
+    {
+      "id": "KXz7q6E5acO8U0cQMSSI",
+      "name": "iPad Prüfung kftya",
+      "platform": "ipados",
+      "createdAt": "2026-10-13T10:56:31.690Z",
+      "lastSeenAt": "2026-10-13T10:56:31.690Z",
+      "push": null,
+      "own": true
+    }
+  ]
+}

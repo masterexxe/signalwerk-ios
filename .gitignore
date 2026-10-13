@@ -1,0 +1,17 @@
+# Xcode (Projekt wird mit XcodeGen erzeugt)
+*.xcodeproj/
+*.xcworkspace/
+!SignalwerkKit/.swiftpm/xcode/package.xcworkspace/
+xcuserdata/
+DerivedData/
+build/
+.build/
+.swiftpm/
+Signalwerk/Info.plist
+*.xcresult
+# Schlüssel gehören nie ins Repo
+*.p8
+*.p12
+*.mobileprovision
+.env
+.DS_Store

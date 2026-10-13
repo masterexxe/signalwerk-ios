@@ -1,0 +1,47 @@
+{
+  "master": 100,
+  "sounds": [
+    {
+      "id": "2269b368-4837-40b9-814a-005203c9786e",
+      "name": "Jingle Spenden",
+      "volume": 100,
+      "previewUrl": "http://127.0.0.1:8080/api/media/2269b368-4837-40b9-814a-005203c9786e"
+    },
+    {
+      "id": "372b96a6-d90e-425f-a402-a64cdcc06878",
+      "name": "Wow",
+      "volume": 100,
+      "previewUrl": "http://127.0.0.1:8080/api/media/372b96a6-d90e-425f-a402-a64cdcc06878"
+    },
+    {
+      "id": "e29a2ed4-b572-4980-b9b7-31773a69a38f",
+      "name": "Level Up",
+      "volume": 100,
+      "previewUrl": "http://127.0.0.1:8080/api/media/e29a2ed4-b572-4980-b9b7-31773a69a38f"
+    },
+    {
+      "id": "8993fcc7-4a22-437a-8010-a0bba10ec599",
+      "name": "Fail Trombone",
+      "volume": 100,
+      "previewUrl": "http://127.0.0.1:8080/api/media/8993fcc7-4a22-437a-8010-a0bba10ec599"
+    },
+    {
+      "id": "a6ee1fe9-8326-4ffc-8741-19f76385dca2",
+      "name": "Trommelwirbel",
+      "volume": 100,
+      "previewUrl": "http://127.0.0.1:8080/api/media/a6ee1fe9-8326-4ffc-8741-19f76385dca2"
+    },
+    {
+      "id": "32912032-6fd4-4c42-a3ba-bc953b4aba75",
+      "name": "Applaus",
+      "volume": 100,
+      "previewUrl": "http://127.0.0.1:8080/api/media/32912032-6fd4-4c42-a3ba-bc953b4aba75"
+    },
+    {
+      "id": "f99f6e51-a4be-4e32-a94b-1e36ccc4cba1",
+      "name": "Airhorn",
+      "volume": 100,
+      "previewUrl": "http://127.0.0.1:8080/api/media/f99f6e51-a4be-4e32-a94b-1e36ccc4cba1"
+    }
+  ]
+}
