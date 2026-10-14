@@ -1,0 +1,101 @@
+Wartezeit: 14 s
+Adresse: Schloss
+Eingabefeld: ja, Passwortfeld: ja
+
+Attributes: WebView, 0x113373700, {{398.0, 250.0}, {580.0, 586.0}}
+Element subtree:
+ →WebView, 0x113373700, {{398.0, 250.0}, {580.0, 586.0}}
+    WebView, 0x113373840, {{398.0, 250.0}, {580.0, 586.0}}
+      WebView, 0x113373980, {{398.0, 250.0}, {580.0, 586.0}}
+        Other, 0x113373ac0, {{0.0, 0.0}, {580.0, 586.0}}
+          Other, 0x113373c00, {{0.0, 0.0}, {580.0, 586.0}}
+            Other, 0x113373d40, {{398.0, 250.0}, {580.0, 586.0}}
+              Other, 0x113373e80, {{398.0, 250.0}, {580.0, 586.0}}, label: 'Log In - Twitch'
+                Other, 0x11337c000, {{398.0, 250.0}, {580.0, 10.0}}
+                  Other, 0x11337c140, {{422.0, 264.0}, {532.0, 22.0}}
+                    StaticText, 0x11337c280, {{422.0, 264.0}, {269.0, 22.0}}, label: 'Cookies and Advertising Choices', value: Cookies and Advert...
+                  Other, 0x11337c3c0, {{422.0, 289.0}, {532.0, 95.0}}
+                    StaticText, 0x11337c500, {{422.0, 289.0}, {529.0, 94.0}}, label: 'We work with trusted partners to provide relevant advertising based on information about your use of Twitch and third-party websites and applications. If you want to learn more about our advertising practices and your rights to opt-out, click the "Cookies & Ads Choices" button to the right or use the navigation menu at the top of the page.', value: We work with trust...
+                  Other, 0x11337c640, {{591.0, 392.0}, {202.0, 32.0}}
+                    Button, 0x11337c780, {{591.0, 392.0}, {202.0, 32.0}}, label: 'Cookies & Ads Choices'
+                  Other, 0x11337c8c0, {{641.0, 432.0}, {102.0, 32.0}}
+                    Button, 0x11337ca00, {{641.0, 432.0}, {102.0, 32.0}}, label: 'Proceed'
+                  Other, 0x11337cb40, {{428.0, 488.0}, {520.0, 493.0}}
+                    Other, 0x11337cc80, {{616.0, 502.0}, {173.0, 30.0}}
+                      StaticText, 0x11337cdc0, {{616.0, 502.0}, {173.0, 30.0}}, label: 'Log in to Twitch', value: Log in to Twitch
+                    Other, 0x11337cf00, {{444.0, 548.0}, {488.0, 417.0}}, label: 'form'
+                      Other, 0x11337d040, {{444.0, 548.0}, {488.0, 19.0}}
+                        Other, 0x11337d180, {{444.0, 548.0}, {70.0, 18.0}}, label: 'Username'
+                          StaticText, 0x11337d2c0, {{444.0, 548.0}, {71.0, 18.0}}, label: 'Username', value: Username
+                      TextField, 0x11337d400, {{444.0, 571.0}, {488.0, 36.0}}, label: 'Enter your username', Keyboard Focused, Focused
+                      Other, 0x11337d540, {{444.0, 548.0}, {488.0, 10.0}}
+                      Other, 0x11337d680, {{444.0, 548.0}, {488.0, 10.0}}, label: 'application status'
+                        Other, 0x11337d7c0, {{443.0, 606.0}, {1.0, 1.0}}
+                      Other, 0x11337d900, {{444.0, 623.0}, {488.0, 20.0}}
+                        Other, 0x11337da40, {{444.0, 623.0}, {68.0, 19.0}}, label: 'Password'
+                          StaticText, 0x11337db80, {{444.0, 623.0}, {68.0, 19.0}}, label: 'Password', value: Password
+                      SecureTextField, 0x11337dcc0, {{444.0, 647.0}, {488.0, 36.0}}, label: 'Enter your password'
+                      Button, 0x11337de00, {{897.0, 649.0}, {33.0, 32.0}}, label: 'Toggle password visibility'
+                      Other, 0x11337df40, {{444.0, 623.0}, {488.0, 10.0}}
+                      Other, 0x11337e080, {{444.0, 623.0}, {488.0, 10.0}}, label: 'application status'
+                        Other, 0x11337e1c0, {{443.0, 682.0}, {1.0, 1.0}}
+                      Other, 0x11337e300, {{444.0, 691.0}, {488.0, 19.0}}
+                        Link, 0x11337e440, {{444.0, 691.0}, {126.0, 18.0}}, label: 'Trouble logging in?'
+                          StaticText, 0x11337e580, {{444.0, 691.0}, {126.0, 18.0}}, label: 'Trouble logging in?', value: Trouble logging in?
+                      Other, 0x11337e6c0, {{444.0, 726.0}, {488.0, 36.0}}
+                        Other, 0x11337e800, {{443.0, 725.0}, {1.0, 1.0}}, label: 'application status'
+                        Button, 0x11337e940, {{444.0, 726.0}, {488.0, 36.0}}, label: 'Log In', Disabled
+                      Other, 0x11337ea80, {{681.0, 770.0}, {14.0, 19.0}}
+                        StaticText, 0x11337ebc0, {{681.0, 770.0}, {14.0, 18.0}}, label: 'or', value: or
+                      Other, 0x11337ed00, {{444.0, 797.0}, {488.0, 36.0}}
+                        Button, 0x11337ee40, {{444.0, 797.0}, {488.0, 36.0}}, label: 'Continue with Google'
+                      Other, 0x11337ef80, {{444.0, 841.0}, {488.0, 36.0}}
+                        Button, 0x11337f0c0, {{444.0, 841.0}, {488.0, 36.0}}, label: 'Continue with Amazon'
+                      Other, 0x11337f200, {{444.0, 885.0}, {488.0, 36.0}}
+                        Button, 0x11337f340, {{444.0, 885.0}, {488.0, 36.0}}, label: 'Continue with Apple'
+                      Other, 0x11337f480, {{444.0, 929.0}, {488.0, 36.0}}
+                        Button, 0x11337f5c0, {{444.0, 929.0}, {488.0, 36.0}}, label: 'Don't have an account? Sign up'
+                  Other, 0x11337f700, {{398.0, 250.0}, {580.0, 10.0}}
+                  Other, 0x11337f840, {{414.0, 780.0}, {564.0, 40.0}}
+                  Other, 0x11337f980, {{397.0, 249.0}, {1.0, 1.0}}, label: 'application status'
+                  Other, 0x11337fac0, {{397.0, 249.0}, {1.0, 1.0}}, label: 'alert'
+      Other, 0x11337fc00, {{945.0, 250.0}, {30.0, 554.0}}, label: 'Vertikaler Rollbalken, 1 Seite', value: 0 %
+        Other, 0x11337fd40, {{972.0, 253.0}, {3.0, 548.0}}
+      Other, 0x11337fe80, {{430.0, 803.0}, {516.0, 30.0}}, label: 'Horizontaler Rollbalken, 1 Seite', value: 0 %
+        Other, 0x11338c000, {{433.0, 830.0}, {510.0, 3.0}}
+      Other, 0x11338c140, {{945.0, 250.0}, {30.0, 554.0}}, label: 'Vertikaler Rollbalken, 1 Seite', value: 0 %
+        Other, 0x11338c280, {{972.0, 253.0}, {3.0, 548.0}}
+      Other, 0x11338c3c0, {{430.0, 803.0}, {516.0, 30.0}}, label: 'Horizontaler Rollbalken, 1 Seite', value: 0 %
+        Other, 0x11338c500, {{433.0, 830.0}, {510.0, 3.0}}
+Path to element:
+ →Application, 0x1132a5680, pid: 23873, label: 'Signalwerk'
+  ↳Window (Main), 0x1132a57c0, {{0.0, 0.0}, {1376.0, 1032.0}}
+   ↳Other, 0x113371900, {{0.0, 0.0}, {1376.0, 1032.0}}
+    ↳Other, 0x113371b80, {{398.0, 186.0}, {580.0, 650.0}}
+     ↳Other, 0x113371e00, {{398.0, 186.0}, {580.0, 650.0}}
+      ↳Other, 0x113371f40, {{398.0, 186.0}, {580.0, 650.0}}
+       ↳Other, 0x113372080, {{398.0, 186.0}, {580.0, 650.0}}
+        ↳Other, 0x1133721c0, {{398.0, 186.0}, {580.0, 650.0}}
+         ↳Other, 0x113372300, {{398.0, 186.0}, {580.0, 650.0}}
+          ↳Other, 0x113372440, {{398.0, 186.0}, {580.0, 650.0}}
+           ↳Other, 0x113372580, {{398.0, 186.0}, {580.0, 650.0}}
+            ↳Other, 0x113373200, {{398.0, 186.0}, {580.0, 650.0}}
+             ↳Other, 0x113373340, {{398.0, 186.0}, {580.0, 650.0}}
+              ↳Other, 0x113373480, {{398.0, 186.0}, {580.0, 650.0}}
+               ↳Other, 0x1133735c0, {{398.0, 186.0}, {580.0, 650.0}}
+                ↳WebView, 0x113373700, {{398.0, 250.0}, {580.0, 586.0}}
+Query chain:
+ →Find: Target Application 'live.signalwerk.app'
+  Output: {
+    Application, 0x1135ed7c0, pid: 23873, label: 'Signalwerk'
+  }
+  ↪︎Find: Descendants matching type WebView
+    Output: {
+      WebView, 0x1135e4280, {{398.0, 250.0}, {580.0, 586.0}}
+      WebView, 0x1135e43c0, {{398.0, 250.0}, {580.0, 586.0}}
+      WebView, 0x1135e4500, {{398.0, 250.0}, {580.0, 586.0}}
+    }
+    ↪︎Find: First Match
+      Output: {
+        WebView, 0x1135a12c0, {{398.0, 250.0}, {580.0, 586.0}}
+      }

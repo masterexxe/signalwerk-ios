@@ -1,0 +1,3 @@
+kit=success
+iphone=success
+ipad=success

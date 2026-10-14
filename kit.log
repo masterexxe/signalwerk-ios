@@ -1,0 +1,133 @@
+Building for debugging...
+[0/8] /Users/runner/work/signalwerk-ios/signalwerk-ios/SignalwerkKit/.build/arm64-apple-macosx/debug/SignalwerkKitPackageTests.derived/runner.swift
+[1/8] Write sources
+[4/8] Copying Fixtures
+[5/8] Write swift-version-7974D3F7F03D5E95.txt
+[7/19] Emitting module SignalwerkKit
+[8/19] Compiling SignalwerkKit EventStream.swift
+[9/19] Compiling SignalwerkKit Formatting.swift
+[10/19] Compiling SignalwerkKit Models.swift
+[11/19] Compiling SignalwerkKit PKCE.swift
+[12/19] Compiling SignalwerkKit ServerAddress.swift
+[13/19] Compiling SignalwerkKit Backend.swift
+[14/19] Compiling SignalwerkKit ChatModels.swift
+[15/19] Compiling SignalwerkKit ChatSegments.swift
+[16/19] Compiling SignalwerkKit ChatSource.swift
+[17/19] Compiling SignalwerkKit DemoBackend.swift
+[18/23] Compiling SignalwerkKit SignalwerkClient.swift
+[19/23] Compiling SignalwerkKit SignalwerkError.swift
+[20/23] Compiling SignalwerkKit SocketIO.swift
+[21/23] Compiling SignalwerkKit TwitchWeb.swift
+[22/28] Compiling SignalwerkKitTests DecodingTests.swift
+[23/28] Compiling SignalwerkKitTests DemoBackendTests.swift
+[24/30] Emitting module SignalwerkKitTests
+[25/30] Compiling SignalwerkKitTests ChatTests.swift
+[26/30] Compiling SignalwerkKitTests CoreTests.swift
+[27/30] Compiling SignalwerkKitTests TwitchWebTests.swift
+[28/30] Compiling SignalwerkKitTests resource_bundle_accessor.swift
+[29/32] Emitting module SignalwerkKitPackageTests
+[30/32] Compiling SignalwerkKitPackageTests runner.swift
+[30/32] Write Objects.LinkFileList
+[31/32] Linking SignalwerkKitPackageTests
+Build complete! (27.66s)
+Test Suite 'All tests' started at 2026-10-14 09:17:09.952.
+Test Suite 'SignalwerkKitPackageTests.xctest' started at 2026-10-14 09:17:09.954.
+Test Suite 'ChatTests' started at 2026-10-14 09:17:09.954.
+Test Case '-[SignalwerkKitTests.ChatTests testBufferAppliesUpdates]' started.
+Test Case '-[SignalwerkKitTests.ChatTests testBufferAppliesUpdates]' passed (0.003 seconds).
+Test Case '-[SignalwerkKitTests.ChatTests testMentions]' started.
+Test Case '-[SignalwerkKitTests.ChatTests testMentions]' passed (0.000 seconds).
+Test Case '-[SignalwerkKitTests.ChatTests testSegmentsCountCodepointsLikeTheDashboard]' started.
+Test Case '-[SignalwerkKitTests.ChatTests testSegmentsCountCodepointsLikeTheDashboard]' passed (0.000 seconds).
+Test Case '-[SignalwerkKitTests.ChatTests testSegmentsFindLinksMentionsAndExtraEmotes]' started.
+Test Case '-[SignalwerkKitTests.ChatTests testSegmentsFindLinksMentionsAndExtraEmotes]' passed (0.001 seconds).
+Test Case '-[SignalwerkKitTests.ChatTests testSegmentsIgnoreBrokenEmotePositions]' started.
+Test Case '-[SignalwerkKitTests.ChatTests testSegmentsIgnoreBrokenEmotePositions]' passed (0.001 seconds).
+Test Case '-[SignalwerkKitTests.ChatTests testSocketCodecEncodes]' started.
+Test Case '-[SignalwerkKitTests.ChatTests testSocketCodecEncodes]' passed (0.011 seconds).
+Test Case '-[SignalwerkKitTests.ChatTests testSocketCodecParsesServerPackets]' started.
+Test Case '-[SignalwerkKitTests.ChatTests testSocketCodecParsesServerPackets]' passed (0.003 seconds).
+Test Suite 'ChatTests' passed at 2026-10-14 09:17:09.976.
+	 Executed 7 tests, with 0 failures (0 unexpected) in 0.019 (0.022) seconds
+Test Suite 'CoreTests' started at 2026-10-14 09:17:09.976.
+Test Case '-[SignalwerkKitTests.CoreTests testBinaryPacing]' started.
+Test Case '-[SignalwerkKitTests.CoreTests testBinaryPacing]' passed (0.001 seconds).
+Test Case '-[SignalwerkKitTests.CoreTests testDates]' started.
+Test Case '-[SignalwerkKitTests.CoreTests testDates]' passed (0.005 seconds).
+Test Case '-[SignalwerkKitTests.CoreTests testFormats]' started.
+Test Case '-[SignalwerkKitTests.CoreTests testFormats]' passed (0.005 seconds).
+Test Case '-[SignalwerkKitTests.CoreTests testPKCEMatchesRFC7636]' started.
+Test Case '-[SignalwerkKitTests.CoreTests testPKCEMatchesRFC7636]' passed (0.002 seconds).
+Test Case '-[SignalwerkKitTests.CoreTests testQueueAmounts]' started.
+Test Case '-[SignalwerkKitTests.CoreTests testQueueAmounts]' passed (0.000 seconds).
+Test Case '-[SignalwerkKitTests.CoreTests testServerAddress]' started.
+Test Case '-[SignalwerkKitTests.CoreTests testServerAddress]' passed (0.000 seconds).
+Test Case '-[SignalwerkKitTests.CoreTests testSpokenQueueSummary]' started.
+Test Case '-[SignalwerkKitTests.CoreTests testSpokenQueueSummary]' passed (0.000 seconds).
+Test Case '-[SignalwerkKitTests.CoreTests testSSEParser]' started.
+Test Case '-[SignalwerkKitTests.CoreTests testSSEParser]' passed (0.000 seconds).
+Test Case '-[SignalwerkKitTests.CoreTests testStreamSeriesPoints]' started.
+Test Case '-[SignalwerkKitTests.CoreTests testStreamSeriesPoints]' passed (0.000 seconds).
+Test Case '-[SignalwerkKitTests.CoreTests testWebConnect]' started.
+Test Case '-[SignalwerkKitTests.CoreTests testWebConnect]' passed (0.000 seconds).
+Test Suite 'CoreTests' passed at 2026-10-14 09:17:09.993.
+	 Executed 10 tests, with 0 failures (0 unexpected) in 0.015 (0.017) seconds
+Test Suite 'DecodingTests' started at 2026-10-14 09:17:09.993.
+Test Case '-[SignalwerkKitTests.DecodingTests testActionReplies]' started.
+Test Case '-[SignalwerkKitTests.DecodingTests testActionReplies]' passed (0.002 seconds).
+Test Case '-[SignalwerkKitTests.DecodingTests testChatJoinAndBatch]' started.
+Test Case '-[SignalwerkKitTests.DecodingTests testChatJoinAndBatch]' passed (0.002 seconds).
+Test Case '-[SignalwerkKitTests.DecodingTests testDevicesAndStream]' started.
+Test Case '-[SignalwerkKitTests.DecodingTests testDevicesAndStream]' passed (0.001 seconds).
+Test Case '-[SignalwerkKitTests.DecodingTests testErrorResponseBecomesServerText]' started.
+Test Case '-[SignalwerkKitTests.DecodingTests testErrorResponseBecomesServerText]' passed (0.001 seconds).
+Test Case '-[SignalwerkKitTests.DecodingTests testMe]' started.
+Test Case '-[SignalwerkKitTests.DecodingTests testMe]' passed (0.001 seconds).
+Test Case '-[SignalwerkKitTests.DecodingTests testOverview]' started.
+Test Case '-[SignalwerkKitTests.DecodingTests testOverview]' passed (0.001 seconds).
+Test Case '-[SignalwerkKitTests.DecodingTests testQueue]' started.
+Test Case '-[SignalwerkKitTests.DecodingTests testQueue]' passed (0.001 seconds).
+Test Case '-[SignalwerkKitTests.DecodingTests testSession]' started.
+Test Case '-[SignalwerkKitTests.DecodingTests testSession]' passed (0.001 seconds).
+Test Case '-[SignalwerkKitTests.DecodingTests testSoundsAndVoices]' started.
+Test Case '-[SignalwerkKitTests.DecodingTests testSoundsAndVoices]' passed (0.001 seconds).
+Test Case '-[SignalwerkKitTests.DecodingTests testUnauthorizedAndOldServer]' started.
+Test Case '-[SignalwerkKitTests.DecodingTests testUnauthorizedAndOldServer]' passed (0.000 seconds).
+Test Case '-[SignalwerkKitTests.DecodingTests testUnknownChatLinesAreSkipped]' started.
+Test Case '-[SignalwerkKitTests.DecodingTests testUnknownChatLinesAreSkipped]' passed (0.000 seconds).
+Test Suite 'DecodingTests' passed at 2026-10-14 09:17:10.007.
+	 Executed 11 tests, with 0 failures (0 unexpected) in 0.012 (0.014) seconds
+Test Suite 'DemoBackendTests' started at 2026-10-14 09:17:10.007.
+Test Case '-[SignalwerkKitTests.DemoBackendTests testDemoEventsStartWithReady]' started.
+Test Case '-[SignalwerkKitTests.DemoBackendTests testDemoEventsStartWithReady]' passed (0.001 seconds).
+Test Case '-[SignalwerkKitTests.DemoBackendTests testDemoOverviewIsLive]' started.
+Test Case '-[SignalwerkKitTests.DemoBackendTests testDemoOverviewIsLive]' passed (0.001 seconds).
+Test Case '-[SignalwerkKitTests.DemoBackendTests testDemoQueueDecisions]' started.
+Test Case '-[SignalwerkKitTests.DemoBackendTests testDemoQueueDecisions]' passed (0.847 seconds).
+Test Case '-[SignalwerkKitTests.DemoBackendTests testDemoSpeechValidation]' started.
+Test Case '-[SignalwerkKitTests.DemoBackendTests testDemoSpeechValidation]' passed (0.001 seconds).
+Test Suite 'DemoBackendTests' passed at 2026-10-14 09:17:10.856.
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.849 (0.850) seconds
+Test Suite 'TwitchWebTests' started at 2026-10-14 09:17:10.856.
+Test Case '-[SignalwerkKitTests.TwitchWebTests testAccountFallbacks]' started.
+Test Case '-[SignalwerkKitTests.TwitchWebTests testAccountFallbacks]' passed (0.000 seconds).
+Test Case '-[SignalwerkKitTests.TwitchWebTests testAccountFromTwilightUser]' started.
+Test Case '-[SignalwerkKitTests.TwitchWebTests testAccountFromTwilightUser]' passed (0.000 seconds).
+Test Case '-[SignalwerkKitTests.TwitchWebTests testAccountNeedsAuthToken]' started.
+Test Case '-[SignalwerkKitTests.TwitchWebTests testAccountNeedsAuthToken]' passed (0.000 seconds).
+Test Case '-[SignalwerkKitTests.TwitchWebTests testHosts]' started.
+Test Case '-[SignalwerkKitTests.TwitchWebTests testHosts]' passed (0.000 seconds).
+Test Case '-[SignalwerkKitTests.TwitchWebTests testPlayerURL]' started.
+Test Case '-[SignalwerkKitTests.TwitchWebTests testPlayerURL]' passed (0.000 seconds).
+Test Case '-[SignalwerkKitTests.TwitchWebTests testUserAgentSuffix]' started.
+Test Case '-[SignalwerkKitTests.TwitchWebTests testUserAgentSuffix]' passed (0.000 seconds).
+Test Suite 'TwitchWebTests' passed at 2026-10-14 09:17:10.858.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.001 (0.002) seconds
+Test Suite 'SignalwerkKitPackageTests.xctest' passed at 2026-10-14 09:17:10.858.
+	 Executed 38 tests, with 0 failures (0 unexpected) in 0.897 (0.905) seconds
+Test Suite 'All tests' passed at 2026-10-14 09:17:10.858.
+	 Executed 38 tests, with 0 failures (0 unexpected) in 0.897 (0.907) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+✔ Test run with 0 tests in 0 suites passed after 0.001 seconds.

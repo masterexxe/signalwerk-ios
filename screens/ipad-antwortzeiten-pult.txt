@@ -1,0 +1,4 @@
+t+0s: 268 ms, Notbremse da
+t+5s: 371 ms, Notbremse da
+t+10s: 681 ms, Notbremse da
+t+16s: 249 ms, Notbremse da
