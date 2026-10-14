@@ -2,6 +2,15 @@ import SwiftUI
 import SignalwerkKit
 
 struct SoundsScreen: View {
+    var body: some View {
+        SoundsBoard()
+            .navigationTitle("Sounds")
+            .toolbar { EmergencyToolbar() }
+    }
+}
+
+/// Tasten, Gesamtlautstärke und Hinweis; als eigener Bereich und im Arbeitsbereich.
+struct SoundsBoard: View {
     @Environment(AppSession.self) private var session
 
     var body: some View {
@@ -28,8 +37,6 @@ struct SoundsScreen: View {
         }
         .background(Palette.background)
         .refreshable { await store.load() }
-        .navigationTitle("Sounds")
-        .toolbar { EmergencyToolbar() }
         .task {
             if !store.loaded { await store.load() }
         }

@@ -52,6 +52,7 @@ final class AppSession {
     let stats: StatsStore
     let devices: DevicesStore
     let liveVoice: LiveVoiceController
+    let desk: DeskStore
     private(set) var stopping = false
     /// Live-Ereignisse verbunden?
     private(set) var live = false
@@ -72,6 +73,7 @@ final class AppSession {
         self.stats = StatsStore(context: context)
         self.devices = DevicesStore(context: context)
         self.liveVoice = LiveVoiceController(context: context)
+        self.desk = DeskStore(context: context)
     }
 
     var backend: SignalwerkBackend { context.backend }

@@ -58,6 +58,17 @@ final class ScreenshotTests: XCTestCase {
         if item.waitForExistence(timeout: 5) { item.tap() }
     }
 
+    /// Reiter unter dem Player im Arbeitsbereich (Segmente).
+    private func segment(_ label: String) {
+        let button = app.segmentedControls.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", label)).firstMatch
+        if button.waitForExistence(timeout: 5) {
+            button.tap()
+        } else {
+            snap("fehlt-reiter-\(label)")
+            XCTFail("Reiter \(label) nicht gefunden")
+        }
+    }
+
     /// Tippen über die Kennung; fehlt das Element, ein Bild davon, wie es aussah.
     private func tap(_ identifier: String) {
         let item = element(identifier)
@@ -104,32 +115,38 @@ final class ScreenshotTests: XCTestCase {
         sleep(2)
 
         if isPad {
-            snap("01-pult")
+            snap("01-arbeitsbereich")
+            segment("Sounds")
+            sleep(1)
+            snap("01b-arbeitsbereich-sounds")
+            open(sidebar: "nav-pult")
+            sleep(2)
+            snap("02-pult")
             probe("antwortzeiten-pult", rounds: 4, pause: 5)
-            snap("01b-pult-spaeter")
             open(sidebar: "nav-queue")
             sleep(1)
-            snap("02-spenden")
+            snap("03-spenden")
             open(sidebar: "nav-sounds")
             sleep(1)
-            snap("03-sounds")
+            snap("04-sounds")
             open(sidebar: "nav-speech")
             sleep(1)
-            snap("04-sprache")
+            snap("05-sprache")
             open(sidebar: "nav-chat")
             sleep(3)
-            snap("05-chat")
+            snap("06-chat")
             open(sidebar: "nav-overview")
             sleep(2)
-            snap("06-uebersicht")
+            snap("07-uebersicht")
             open(sidebar: "nav-stats")
             sleep(2)
-            snap("07-statistik")
+            snap("08-statistik")
             open(sidebar: "nav-settings")
             sleep(1)
-            snap("08-einstellungen")
+            snap("09-einstellungen")
         } else {
-            snap("01-spenden")
+            // Arbeitsbereich: Player oben (in der Demo ein Hinweis), darunter die Reiter.
+            snap("01-arbeitsbereich")
             // Oberste Spende per Wischen annehmen.
             let first = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH %@", "queue-row-")).firstMatch
             if first.waitForExistence(timeout: 5) {
@@ -137,7 +154,7 @@ final class ScreenshotTests: XCTestCase {
                 sleep(1)
                 snap("02-angenommen")
             }
-            open(tab: "Sounds")
+            segment("Sounds")
             sleep(1)
             snap("03-sounds")
             let pad = app.buttons["Applaus"].firstMatch
@@ -145,30 +162,34 @@ final class ScreenshotTests: XCTestCase {
                 pad.tap()
                 sleep(1)
             }
-            open(tab: "Sprache")
+            segment("TTS")
             sleep(1)
             // Kein Tippen: Die Tastatur ruft im Simulator den Hinweis zur Diktierfunktion auf.
-            snap("04-sprache")
+            snap("04-tts")
+            segment("Live-Voice")
+            sleep(1)
+            snap("05-live-voice")
+            tap("desk-player-toggle")
+            sleep(1)
+            snap("06-player-eingeklappt")
+            tap("desk-player-toggle")
             open(tab: "Chat")
             sleep(3)
-            snap("05-chat")
-            open(tab: "Mehr")
-            sleep(1)
-            snap("06-mehr")
-            tap("more-overview")
+            snap("07-chat")
+            open(tab: "Übersicht")
             sleep(2)
-            snap("06-uebersicht")
-            app.navigationBars.buttons.element(boundBy: 0).tap()
+            snap("08-uebersicht")
+            open(tab: "Mehr")
             sleep(1)
             tap("more-stats")
             sleep(2)
-            snap("07-statistik")
+            snap("09-statistik")
         }
 
         // Notbremse in der Demo: Rückmeldung erscheint.
         element("notbremse").tap()
         XCTAssertTrue(element("toast").waitForExistence(timeout: 5), "Keine Rückmeldung nach der Notbremse")
-        snap("09-notbremse")
+        snap("10-notbremse")
     }
 
     func testLoginScreen() throws {

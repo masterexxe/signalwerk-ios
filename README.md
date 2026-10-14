@@ -14,6 +14,14 @@ sich die Anmeldeseite des Dashboards (Team-Zugang oder Twitch); danach **Verbind
 bekommt einen eigenen Zugang, der im Schlüsselbund liegt. Abmelden geht in der App unter
 Einstellungen und im Dashboard unter Einstellungen → Team → App-Geräte.
 
+## Arbeitsbereich
+
+Startansicht auf iPhone und iPad: oben der Twitch-Player des Kanals (wie im Arbeitsbereich des
+Dashboards), darunter die Reiter Spenden, Sounds, TTS und Live-Voice. Der Player lässt sich
+einklappen, der Ton läuft dann weiter; am iPhone im Querformat füllt er den Bildschirm. Während
+Live-Voice hält er an, damit das Mikrofon den Stream-Ton nicht wieder aufnimmt. Die Seite mit dem
+Player lädt unter der Adresse des Dashboards, weil Twitch eingebettet nur dort spielt.
+
 ## Mitteilungen, Live-Voice, Kurzbefehle
 
 - **Mitteilungen:** In den Einstellungen der App einschalten. Bei jeder Spende oder Sub-Bomb, die

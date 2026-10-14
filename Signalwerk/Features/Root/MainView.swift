@@ -3,6 +3,7 @@ import SignalwerkKit
 
 /// Bereiche der App. Auf dem iPhone Reiter, auf dem iPad eine Seitenleiste mit dem Pult zuerst.
 enum AppSection: String, CaseIterable, Identifiable, Hashable {
+    case desk
     case pult
     case overview
     case queue
@@ -16,6 +17,7 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
 
     var title: String {
         switch self {
+        case .desk: return "Arbeitsbereich"
         case .pult: return "Pult"
         case .overview: return "Übersicht"
         case .queue: return "Spenden"
@@ -29,6 +31,7 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
 
     var symbol: String {
         switch self {
+        case .desk: return "play.rectangle"
         case .pult: return "slider.horizontal.below.square.and.square.filled"
         case .overview: return "gauge.with.dots.needle.33percent"
         case .queue: return "eurosign.circle"
@@ -42,6 +45,7 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
 
     var tone: Color {
         switch self {
+        case .desk: return Palette.red
         case .pult: return Palette.amber
         case .overview: return Palette.blue
         case .queue: return Palette.green
@@ -66,34 +70,33 @@ struct MainView: View {
     }
 }
 
-/// iPhone (und schmale iPad-Fenster): Reiter unten.
+/// iPhone (und schmale iPad-Fenster): Reiter unten. Spenden, Sounds, TTS und Live-Voice stecken
+/// im Arbeitsbereich unter dem Player.
 struct TabLayout: View {
     @Environment(AppSession.self) private var session
-    @State private var tab: AppSection = .queue
+    @State private var tab: AppSection = .desk
 
     var body: some View {
         TabView(selection: $tab) {
-            NavigationStack { QueueScreen() }
-                .tabItem { Label("Spenden", systemImage: AppSection.queue.symbol) }
+            NavigationStack { DeskScreen() }
+                .tabItem { Label("Arbeitsbereich", systemImage: AppSection.desk.symbol) }
                 .badge(session.queue.pending.total)
-                .tag(AppSection.queue)
-            NavigationStack { SoundsScreen() }
-                .tabItem { Label("Sounds", systemImage: AppSection.sounds.symbol) }
-                .tag(AppSection.sounds)
-            NavigationStack { SpeechScreen() }
-                .tabItem { Label("Sprache", systemImage: AppSection.speech.symbol) }
-                .tag(AppSection.speech)
+                .tag(AppSection.desk)
             NavigationStack { ChatScreen() }
                 .tabItem { Label("Chat", systemImage: AppSection.chat.symbol) }
                 .tag(AppSection.chat)
+            NavigationStack { OverviewScreen() }
+                .tabItem { Label("Übersicht", systemImage: AppSection.overview.symbol) }
+                .tag(AppSection.overview)
             NavigationStack { MoreScreen() }
                 .tabItem { Label("Mehr", systemImage: "ellipsis.circle") }
-                .tag(AppSection.overview)
+                .tag(AppSection.settings)
         }
         .onChange(of: PushCenter.shared.openedItem) { _, opened in
-            // Mitteilung angetippt: zu den Spenden.
+            // Mitteilung angetippt: Arbeitsbereich mit den Spenden.
             if opened != nil {
-                tab = .queue
+                tab = .desk
+                session.desk.tab = .queue
                 PushCenter.shared.openedItem = nil
             }
         }
@@ -103,7 +106,7 @@ struct TabLayout: View {
 /// iPad: Seitenleiste, rechts der gewählte Bereich.
 struct SplitLayout: View {
     @Environment(AppSession.self) private var session
-    @State private var selection: AppSection? = .pult
+    @State private var selection: AppSection? = .desk
     @State private var visibility: NavigationSplitViewVisibility = .automatic
 
     var body: some View {
@@ -142,13 +145,14 @@ struct SplitLayout: View {
             .navigationTitle("Signalwerk")
         } detail: {
             NavigationStack {
-                detail(for: selection ?? .pult)
+                detail(for: selection ?? .desk)
             }
         }
         .navigationSplitViewStyle(.balanced)
         .onChange(of: PushCenter.shared.openedItem) { _, opened in
             if opened != nil {
-                selection = .queue
+                selection = .desk
+                session.desk.tab = .queue
                 PushCenter.shared.openedItem = nil
             }
         }
@@ -157,6 +161,7 @@ struct SplitLayout: View {
     @ViewBuilder
     private func detail(for section: AppSection) -> some View {
         switch section {
+        case .desk: DeskScreen()
         case .pult: PultScreen()
         case .overview: OverviewScreen()
         case .queue: QueueScreen()
@@ -193,17 +198,13 @@ struct SidebarHeader: View {
     }
 }
 
-/// iPhone: Übersicht, Statistik und Einstellungen unter „Mehr“.
+/// iPhone: Statistik und Einstellungen unter „Mehr“.
 struct MoreScreen: View {
     @Environment(AppSession.self) private var session
 
     var body: some View {
         List {
             Section {
-                NavigationLink { OverviewScreen() } label: {
-                    Label("Übersicht", systemImage: AppSection.overview.symbol)
-                }
-                .accessibilityIdentifier("more-overview")
                 NavigationLink { StatsScreen() } label: {
                     Label("Statistik", systemImage: AppSection.stats.symbol)
                 }

@@ -1,8 +1,19 @@
 import SwiftUI
 import SignalwerkKit
 
-/// Spenden und Sub-Bombs: offene zuerst, Wischen zum Annehmen (rechts) oder Blockieren (links).
+/// Spenden und Sub-Bombs als eigener Bereich (iPad-Seitenleiste).
 struct QueueScreen: View {
+    var body: some View {
+        QueueList()
+            .navigationTitle("Spenden")
+            .toolbar { EmergencyToolbar() }
+            .background(QueueKeyboardShortcuts())
+    }
+}
+
+/// Spenden und Sub-Bombs: offene zuerst, Wischen zum Annehmen (rechts) oder Blockieren (links).
+/// Steht als eigener Bereich und im Arbeitsbereich unter dem Player.
+struct QueueList: View {
     @Environment(AppSession.self) private var session
     @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var selected: QueueItem?
@@ -67,14 +78,11 @@ struct QueueScreen: View {
         .scrollContentBackground(.hidden)
         .background(Palette.background)
         .refreshable { await store.load() }
-        .navigationTitle("Spenden")
-        .toolbar { EmergencyToolbar() }
         .sheet(item: $selected) { item in
             QueueDetailSheet(item: item)
                 .presentationDetents([.medium, .large])
                 .presentationBackground(Palette.surface)
         }
-        .background(QueueKeyboardShortcuts())
         .task {
             if !store.loaded { await store.load() }
         }
