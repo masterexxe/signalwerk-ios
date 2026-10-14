@@ -1,22 +1,26 @@
 import AVFoundation
+import SignalwerkKit
 import SwiftUI
+import UIKit
 import WebKit
 
-/// Zustand des Twitch-Players, wie ihn die Seite im WKWebView meldet.
+/// Zustand des Twitch-Players, wie ihn das Skript in der Seite meldet.
 enum TwitchPlayerState: Equatable {
     case loading
     case playing
-    case offline
+    case stopped
     case failed(String)
 }
 
-/// Twitch-Player in einem WKWebView. Die kleine Seite lädt unter der Adresse des Dashboards
-/// (`host`): Twitch spielt eingebettet nur, wenn `parent` zur Seite passt, wie im Arbeitsbereich
-/// des Dashboards. Über die Embed-API lässt sich der Player anhalten und stumm schalten.
+/// Twitch-Player als eigene Seite von player.twitch.tv, wie das Popout-Fenster von Twitch. Er nutzt
+/// denselben Web-Speicher wie die Twitch-Anmeldung der App: Angemeldet zeigt Twitch dieselbe
+/// Werbung wie auf twitch.tv. Ein kleines Skript in der Seite meldet, ob das Video läuft, und
+/// schaltet den Ton aus, solange Live-Voice läuft.
 struct TwitchPlayerView: UIViewRepresentable {
     let channel: String
-    let host: String
-    var paused: Bool
+    /// Neu laden, sobald sich das ändert (An- und Abmelden bei Twitch, „Noch einmal laden“).
+    var reload: Int
+    var muted: Bool
     var onState: (TwitchPlayerState) -> Void
 
     func makeCoordinator() -> Coordinator {
@@ -24,124 +28,227 @@ struct TwitchPlayerView: UIViewRepresentable {
     }
 
     func makeUIView(context: Context) -> WKWebView {
-        let configuration = WKWebViewConfiguration()
-        configuration.allowsInlineMediaPlayback = true
-        configuration.allowsPictureInPictureMediaPlayback = true
-        configuration.mediaTypesRequiringUserActionForPlayback = []
+        let configuration = TwitchWebKit.configuration()
         configuration.userContentController.add(context.coordinator, name: "player")
+        configuration.userContentController.addUserScript(
+            WKUserScript(source: TwitchPlayerView.controlScript, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
+        )
         let view = WKWebView(frame: .zero, configuration: configuration)
         view.isOpaque = false
         view.backgroundColor = .black
         view.scrollView.backgroundColor = .black
         view.scrollView.isScrollEnabled = false
         view.scrollView.contentInsetAdjustmentBehavior = .never
+        view.navigationDelegate = context.coordinator
+        view.uiDelegate = context.coordinator
         context.coordinator.view = view
-        context.coordinator.show(channel: channel, host: host, paused: paused)
+        context.coordinator.show(channel: channel, reload: reload, muted: muted)
         return view
     }
 
     func updateUIView(_ view: WKWebView, context: Context) {
         context.coordinator.onState = onState
-        context.coordinator.show(channel: channel, host: host, paused: paused)
+        context.coordinator.show(channel: channel, reload: reload, muted: muted)
     }
 
     static func dismantleUIView(_ view: WKWebView, coordinator: Coordinator) {
         view.configuration.userContentController.removeScriptMessageHandler(forName: "player")
         view.stopLoading()
+        // Leere Seite: Der Ton endet sofort, nicht erst, wenn die Ansicht freigegeben ist.
         view.loadHTMLString("", baseURL: nil)
     }
 
     @MainActor
-    final class Coordinator: NSObject, WKScriptMessageHandler {
+    final class Coordinator: NSObject, WKScriptMessageHandler, WKNavigationDelegate, WKUIDelegate {
         var onState: (TwitchPlayerState) -> Void
         weak var view: WKWebView?
+        private var channel = ""
         private var page: String?
         private var ready = false
-        private var paused = false
-        private var appliedPause: Bool?
+        private var muted = false
+        private var appliedMute: Bool?
 
         init(onState: @escaping (TwitchPlayerState) -> Void) {
             self.onState = onState
         }
 
-        /// Seite nur bei neuem Kanal oder Server neu laden; Anhalten geht über die Embed-API.
-        func show(channel: String, host: String, paused: Bool) {
-            self.paused = paused
-            let key = "\(host)|\(channel)"
+        /// Seite nur bei neuem Kanal oder neuem Ladeauftrag laden; den Ton steuert das Skript.
+        func show(channel: String, reload: Int, muted: Bool) {
+            self.channel = channel
+            self.muted = muted
+            let key = "\(channel)|\(reload)"
             if page != key, let view {
                 page = key
-                ready = false
-                appliedPause = nil
-                onState(.loading)
-                view.loadHTMLString(TwitchPlayerView.html(channel: channel, host: host), baseURL: URL(string: "https://\(host)/"))
+                load(view)
             }
-            applyPause()
+            applyMute()
         }
 
-        private func applyPause() {
-            guard ready, appliedPause != paused, let view else { return }
-            appliedPause = paused
-            view.evaluateJavaScript(paused ? "window.signalwerk && window.signalwerk.pause()" : "window.signalwerk && window.signalwerk.play()", completionHandler: nil)
+        private func load(_ view: WKWebView) {
+            ready = false
+            appliedMute = nil
+            report(.loading)
+            view.load(URLRequest(url: TwitchWeb.playerURL(channel: channel)))
+        }
+
+        /// Zustand erst nach dem laufenden Aktualisieren der Ansicht weitergeben.
+        private func report(_ state: TwitchPlayerState) {
+            Task { @MainActor [weak self] in
+                self?.onState(state)
+            }
+        }
+
+        private func applyMute() {
+            guard ready, appliedMute != muted, let view else { return }
+            appliedMute = muted
+            view.evaluateJavaScript("window.signalwerk && window.signalwerk.setMuted(\(muted ? "true" : "false"))", completionHandler: nil)
         }
 
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
             guard let body = message.body as? [String: Any], let type = body["type"] as? String else { return }
             switch type {
             case "ready":
+                // Jede geladene Seite meldet sich neu und startet mit Ton.
                 ready = true
-                applyPause()
-            case "playing", "online":
-                onState(.playing)
-            case "offline":
-                onState(.offline)
-            case "error":
-                onState(.failed(body["message"] as? String ?? "Der Twitch-Player ließ sich nicht laden."))
+                appliedMute = nil
+                applyMute()
+            case "playing":
+                report(.playing)
+            case "stopped":
+                report(.stopped)
             default:
                 break
             }
         }
+
+        // MARK: Navigation: Die Ansicht bleibt beim Player; Links gehen nach außen.
+
+        func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {
+            guard let url = navigationAction.request.url else { return .cancel }
+            // Rahmen in der Seite (Werbung, Erweiterungen) lädt der Player selbst.
+            if let frame = navigationAction.targetFrame, !frame.isMainFrame { return .allow }
+            if url.scheme == "about" || TwitchWeb.isPlayer(host: url.host()) { return .allow }
+            if navigationAction.navigationType == .linkActivated {
+                openOutside(url)
+            }
+            return .cancel
+        }
+
+        func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+            // „Auf Twitch ansehen“ und andere Links in neuem Fenster: in Safari oder der Twitch-App.
+            if let url = navigationAction.request.url { openOutside(url) }
+            return nil
+        }
+
+        func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: any Error) {
+            fail(error)
+        }
+
+        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: any Error) {
+            fail(error)
+        }
+
+        func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+            // iOS hat die Seite beendet (Speicher): neu laden.
+            load(webView)
+        }
+
+        private func fail(_ error: any Error) {
+            guard !TwitchWebKit.isHarmless(error) else { return }
+            report(.failed("Twitch ist gerade nicht erreichbar. Prüfe die Verbindung."))
+        }
+
+        private func openOutside(_ url: URL) {
+            guard url.scheme == "https" || url.scheme == "http" else { return }
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        }
     }
 
-    /// Seite mit dem Player. Werte als JSON, damit nichts aus dem Skript ausbricht.
-    static func html(channel: String, host: String) -> String {
-        """
-        <!doctype html>
-        <html><head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-        <style>html,body{margin:0;height:100%;background:#000;overflow:hidden}#player{position:absolute;top:0;right:0;bottom:0;left:0}#player iframe{width:100%;height:100%;border:0}</style>
-        </head><body><div id="player"></div>
-        <script>
-        (function () {
-          function post(type, extra) {
-            try { window.webkit.messageHandlers.player.postMessage(Object.assign({ type: type }, extra || {})); } catch (e) {}
+    /// Läuft in der Seite des Players: meldet Wiedergabe, schaltet den Ton für Live-Voice aus und
+    /// danach wieder an. Twitch kann Videos austauschen (Werbung), daher immer alle Videos der Seite.
+    static let controlScript = """
+    (function () {
+      if (window.signalwerk) { return; }
+      function post(type) {
+        try { window.webkit.messageHandlers.player.postMessage({ type: type }); } catch (e) {}
+      }
+      var wantMuted = false;
+      var mutedByUs = [];
+      var playedBefore = [];
+      var seen = [];
+      var scheduled = false;
+      function videos() { return Array.prototype.slice.call(document.querySelectorAll("video")); }
+      function watch(video) {
+        if (seen.indexOf(video) >= 0) { return; }
+        seen.push(video);
+        video.addEventListener("playing", function () { post("playing"); });
+        video.addEventListener("pause", function () {
+          if (videos().every(function (other) { return other.paused; })) { post("stopped"); }
+        });
+        video.addEventListener("ended", function () { post("stopped"); });
+        if (!video.paused) { post("playing"); }
+      }
+      function apply() {
+        videos().forEach(function (video) {
+          watch(video);
+          if (wantMuted && !video.muted) {
+            video.muted = true;
+            mutedByUs.push(video);
           }
-          var script = document.createElement("script");
-          script.src = "https://player.twitch.tv/js/embed/v1.js";
-          script.onerror = function () { post("error", { message: "Twitch ist gerade nicht erreichbar." }); };
-          script.onload = function () {
-            if (!window.Twitch || !window.Twitch.Player) { post("error", { message: "Der Twitch-Player ließ sich nicht laden." }); return; }
-            var Player = window.Twitch.Player;
-            var player = new Player("player", { channel: \(json(channel)), parent: [\(json(host))], width: "100%", height: "100%", autoplay: true, muted: false });
-            window.signalwerk = {
-              pause: function () { try { player.pause(); } catch (e) {} },
-              play: function () { try { player.play(); } catch (e) {} }
-            };
-            player.addEventListener(Player.READY, function () { post("ready"); });
-            player.addEventListener(Player.PLAYING, function () { post("playing"); });
-            player.addEventListener(Player.ONLINE, function () { post("online"); });
-            player.addEventListener(Player.OFFLINE, function () { post("offline"); });
-          };
-          document.head.appendChild(script);
-        })();
-        </script>
-        </body></html>
-        """
+        });
+      }
+      new MutationObserver(function () {
+        if (scheduled) { return; }
+        scheduled = true;
+        setTimeout(function () { scheduled = false; apply(); }, 300);
+      }).observe(document.documentElement, { childList: true, subtree: true });
+      window.signalwerk = {
+        setMuted: function (on) {
+          on = !!on;
+          if (on === wantMuted) { apply(); return; }
+          wantMuted = on;
+          if (on) {
+            playedBefore = videos().filter(function (video) { return !video.paused; });
+            apply();
+            return;
+          }
+          mutedByUs.forEach(function (video) { video.muted = false; });
+          mutedByUs = [];
+          // Hat die Aufnahme die Wiedergabe angehalten, weiterspielen.
+          playedBefore.forEach(function (video) {
+            if (video.isConnected && video.paused) {
+              var started = video.play();
+              if (started && started.catch) { started.catch(function () {}); }
+            }
+          });
+          playedBefore = [];
+        }
+      };
+      apply();
+      post("ready");
+    })();
+    """
+}
+
+/// Gemeinsame Einstellungen der Web-Ansichten für Twitch (Player und Anmeldung): derselbe
+/// dauerhafte Web-Speicher, Video im Bild statt Vollbild, Ton ohne Antippen.
+@MainActor
+enum TwitchWebKit {
+    static func configuration() -> WKWebViewConfiguration {
+        let configuration = WKWebViewConfiguration()
+        configuration.websiteDataStore = .default()
+        configuration.allowsInlineMediaPlayback = true
+        configuration.allowsPictureInPictureMediaPlayback = true
+        configuration.mediaTypesRequiringUserActionForPlayback = []
+        return configuration
     }
 
-    private static func json(_ value: String) -> String {
-        let data = (try? JSONEncoder().encode(value)) ?? Data("\"\"".utf8)
-        return String(decoding: data, as: UTF8.self).replacingOccurrences(of: "</", with: "<\\/")
+    /// Abgebrochene Ladevorgänge (eigener Abbruch, neue Seite) sind kein Fehler.
+    nonisolated static func isHarmless(_ error: any Error) -> Bool {
+        let error = error as NSError
+        if error.domain == NSURLErrorDomain && error.code == NSURLErrorCancelled { return true }
+        // WebKitErrorFrameLoadInterruptedByPolicyChange
+        return error.domain == "WebKitErrorDomain" && error.code == 102
     }
 }
 

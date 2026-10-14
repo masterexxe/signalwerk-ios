@@ -19,8 +19,14 @@ Einstellungen und im Dashboard unter Einstellungen → Team → App-Geräte.
 Startansicht auf iPhone und iPad: oben der Twitch-Player des Kanals (wie im Arbeitsbereich des
 Dashboards), darunter die Reiter Spenden, Sounds, TTS und Live-Voice. Der Player lässt sich
 einklappen, der Ton läuft dann weiter; am iPhone im Querformat füllt er den Bildschirm. Während
-Live-Voice hält er an, damit das Mikrofon den Stream-Ton nicht wieder aufnimmt. Die Seite mit dem
-Player lädt unter der Adresse des Dashboards, weil Twitch eingebettet nur dort spielt.
+Live-Voice ist sein Ton aus, damit das Mikrofon den Stream-Ton nicht wieder aufnimmt.
+
+**Bei Twitch anmelden** (Menü über dem Player oder Einstellungen → Twitch im Player): Die
+Anmeldeseite von twitch.tv öffnet sich in der App, danach lädt der Player mit dem Konto. Twitch
+zeigt dann dieselbe Werbung wie auf twitch.tv; wer dort angemeldet keine sieht, sieht auch im
+Player keine. Der Player läuft dafür als eigene Seite von `player.twitch.tv` (wie das
+Popout-Fenster von Twitch) und nicht eingebettet: Eingebettete Seiten bekommen unter iOS keine
+Cookies von twitch.tv. Die Anmeldung bleibt auf dem Gerät; abmelden geht im selben Menü.
 
 ## Mitteilungen, Live-Voice, Kurzbefehle
 

@@ -21,8 +21,9 @@ enum DeskTab: String, CaseIterable, Identifiable {
     }
 }
 
-/// Arbeitsbereich: welcher Kanal im Player läuft, ob der Player offen ist und welcher Bereich
-/// darunter gewählt ist. Kanal und Player-Zustand merkt sich das Gerät.
+/// Arbeitsbereich: welcher Kanal im Player läuft, ob der Player offen ist, welcher Bereich
+/// darunter gewählt ist und ob der Player mit einem Twitch-Konto läuft. Kanal und
+/// Player-Zustand merkt sich das Gerät.
 @MainActor
 @Observable
 final class DeskStore {
@@ -32,9 +33,14 @@ final class DeskStore {
     private(set) var playerOpen: Bool
     /// Kanäle geladen, aber keiner eingerichtet.
     private(set) var noChannel = false
+    /// Twitch-Konto im Player; nil heißt: Twitch sieht einen Gast.
+    private(set) var twitchAccount: TwitchWebAccount?
+    /// Ändert sich, wenn der Player neu laden soll (An- und Abmelden bei Twitch, Neu laden).
+    private(set) var playerReload = 0
 
     @ObservationIgnored private let context: SessionContext
     @ObservationIgnored private var loaded = false
+    @ObservationIgnored private var twitchChecked = false
 
     private static let channelKey = "signalwerk.desk.channel"
     private static let playerKey = "signalwerk.desk.player"
@@ -70,6 +76,28 @@ final class DeskStore {
     func togglePlayer() {
         playerOpen.toggle()
         UserDefaults.standard.set(playerOpen, forKey: DeskStore.playerKey)
+    }
+
+    func reloadPlayer() {
+        playerReload += 1
+    }
+
+    /// Anmeldung bei Twitch neu lesen. Ändert sie sich (nicht beim ersten Lesen), lädt der Player
+    /// neu, damit Twitch das Konto sieht.
+    func refreshTwitch() async {
+        let account = await TwitchSignIn.currentAccount()
+        let first = !twitchChecked
+        twitchChecked = true
+        guard account != twitchAccount else { return }
+        let changed = (account == nil) != (twitchAccount == nil)
+        twitchAccount = account
+        if changed && !first { playerReload += 1 }
+    }
+
+    func signOutTwitch() async {
+        await TwitchSignIn.signOut()
+        await refreshTwitch()
+        context.toasts.show("Bei Twitch abgemeldet. Der Player läuft jetzt als Gast.")
     }
 
     var channelName: String {

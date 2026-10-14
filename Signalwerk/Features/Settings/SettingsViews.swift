@@ -6,6 +6,7 @@ struct SettingsScreen: View {
     @Environment(AppSession.self) private var session
     @Environment(AppModel.self) private var model
     @State private var confirmSignOut = false
+    @State private var twitchLogin = false
 
     var body: some View {
         let devices = session.devices
@@ -17,6 +18,9 @@ struct SettingsScreen: View {
                 LabeledContent("Signalwerk", value: session.me.server.release)
             }
             .listRowBackground(Palette.card)
+
+            TwitchPlayerSection { twitchLogin = true }
+                .listRowBackground(Palette.card)
 
             if !session.isDemo {
                 NotificationsSection()
@@ -90,8 +94,15 @@ struct SettingsScreen: View {
         .background(Palette.background)
         .navigationTitle("Einstellungen")
         .toolbar { EmergencyToolbar() }
-        .task { await devices.load() }
+        .task {
+            await session.desk.refreshTwitch()
+            await devices.load()
+        }
         .refreshable { await devices.load() }
+        .sheet(isPresented: $twitchLogin) {
+            TwitchLoginSheet()
+                .environment(session)
+        }
         .confirmationDialog(session.isDemo ? "Demo beenden?" : "Von diesem Gerät abmelden?", isPresented: $confirmSignOut, titleVisibility: .visible) {
             Button(session.isDemo ? "Demo beenden" : "Abmelden", role: .destructive) {
                 model.signOut()
@@ -142,6 +153,37 @@ extension Bundle {
         let version = infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
         let build = infoDictionary?["CFBundleVersion"] as? String ?? "1"
         return "\(version) (\(build))"
+    }
+}
+
+/// Twitch-Konto im Player des Arbeitsbereichs.
+struct TwitchPlayerSection: View {
+    @Environment(AppSession.self) private var session
+    var onLogin: () -> Void
+
+    var body: some View {
+        let desk = session.desk
+        Section {
+            if let account = desk.twitchAccount {
+                LabeledContent("Angemeldet als", value: account.label)
+                Button(role: .destructive) {
+                    Task { await desk.signOutTwitch() }
+                } label: {
+                    Label("Bei Twitch abmelden", systemImage: "rectangle.portrait.and.arrow.right")
+                }
+            } else {
+                Button {
+                    onLogin()
+                } label: {
+                    Label("Bei Twitch anmelden", systemImage: "person.crop.circle.badge.checkmark")
+                }
+                .accessibilityIdentifier("twitch-login")
+            }
+        } header: {
+            Text("Twitch im Player")
+        } footer: {
+            Text("Angemeldet zeigt dir der Player dieselbe Werbung wie twitch.tv: Siehst du dort mit deinem Konto keine, dann hier auch nicht. Die Anmeldung bleibt auf diesem Gerät.")
+        }
     }
 }
 

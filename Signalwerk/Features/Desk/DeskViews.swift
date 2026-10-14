@@ -6,6 +6,8 @@ import SignalwerkKit
 struct DeskScreen: View {
     @Environment(AppSession.self) private var session
     @Environment(\.verticalSizeClass) private var verticalSizeClass
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var twitchLogin = false
 
     var body: some View {
         @Bindable var desk = session.desk
@@ -49,14 +51,25 @@ struct DeskScreen: View {
                     .accessibilityIdentifier("desk-player-toggle")
                 }
                 ToolbarItem(placement: .principal) {
-                    DeskChannelMenu()
+                    DeskChannelMenu { twitchLogin = true }
                 }
                 EmergencyToolbar()
             }
         }
         .toolbar(fullscreen ? .hidden : .automatic, for: .navigationBar, .tabBar)
         .background(QueueKeyboardShortcuts())
-        .task { await desk.load() }
+        .task {
+            await desk.refreshTwitch()
+            await desk.load()
+        }
+        .onChange(of: scenePhase) { _, phase in
+            // Twitch meldet nach einiger Zeit ab; beim Zurückkommen den Stand neu lesen.
+            if phase == .active { Task { await desk.refreshTwitch() } }
+        }
+        .sheet(isPresented: $twitchLogin) {
+            TwitchLoginSheet()
+                .environment(session)
+        }
     }
 
     private func label(for tab: DeskTab) -> String {
@@ -65,81 +78,101 @@ struct DeskScreen: View {
     }
 }
 
-/// Kanal im Player; mit mehreren Kanälen als Menü.
+/// Menü des Players oben in der Mitte: Kanal (bei mehreren), Twitch-Anmeldung, neu laden.
 struct DeskChannelMenu: View {
     @Environment(AppSession.self) private var session
+    var onTwitchLogin: () -> Void
 
     var body: some View {
         let desk = session.desk
-        if desk.channels.count > 1 {
-            Menu {
-                ForEach(desk.channels) { channel in
-                    Button {
-                        desk.select(channel.login)
-                    } label: {
-                        if channel.login == desk.channel {
-                            Label(channel.displayName, systemImage: "checkmark")
-                        } else {
-                            Text(channel.displayName)
+        Menu {
+            if desk.channels.count > 1 {
+                Section("Kanal im Player") {
+                    ForEach(desk.channels) { channel in
+                        Button {
+                            desk.select(channel.login)
+                        } label: {
+                            if channel.login == desk.channel {
+                                Label(channel.displayName, systemImage: "checkmark")
+                            } else {
+                                Text(channel.displayName)
+                            }
                         }
                     }
                 }
-            } label: {
-                HStack(spacing: 6) {
-                    Text(desk.channelName)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(Palette.text)
-                        .lineLimit(1)
-                    Image(systemName: "chevron.down")
-                        .font(.caption2)
-                        .foregroundStyle(Palette.textMuted)
+            }
+            Section {
+                if desk.twitchAccount != nil {
+                    Button(role: .destructive) {
+                        Task { await desk.signOutTwitch() }
+                    } label: {
+                        Label("Bei Twitch abmelden", systemImage: "rectangle.portrait.and.arrow.right")
+                    }
+                } else {
+                    Button {
+                        onTwitchLogin()
+                    } label: {
+                        Label("Bei Twitch anmelden", systemImage: "person.crop.circle.badge.checkmark")
+                    }
+                }
+            } header: {
+                Text(desk.twitchAccount.map { "Twitch: angemeldet als \($0.label)" } ?? "Twitch: nicht angemeldet")
+            }
+            if !session.isDemo && desk.channel != nil {
+                Button {
+                    desk.reloadPlayer()
+                } label: {
+                    Label("Player neu laden", systemImage: "arrow.clockwise")
                 }
             }
-            .accessibilityLabel("Kanal im Player wählen")
-        } else {
-            Text(desk.channel == nil ? "Arbeitsbereich" : desk.channelName)
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(Palette.text)
-                .lineLimit(1)
+        } label: {
+            HStack(spacing: 6) {
+                Text(desk.channel == nil ? "Arbeitsbereich" : desk.channelName)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Palette.text)
+                    .lineLimit(1)
+                Image(systemName: "chevron.down")
+                    .font(.caption2)
+                    .foregroundStyle(Palette.textMuted)
+            }
         }
+        .accessibilityLabel("Player: Kanal und Twitch-Anmeldung")
+        .accessibilityIdentifier("desk-player-menu")
     }
 }
 
 /// Der Player selbst, eingeklappt als schmale Leiste (der Ton läuft weiter). Während Live-Voice
-/// hält er an: Sonst nähme das Mikrofon den Stream-Ton wieder auf.
+/// ist sein Ton aus: Sonst nähme das Mikrofon den Stream-Ton wieder auf.
 struct DeskPlayer: View {
     static let barHeight: CGFloat = 44
 
     @Environment(AppSession.self) private var session
     var fullscreen = false
     @State private var state: TwitchPlayerState = .loading
-    @State private var attempt = 0
 
     var body: some View {
         let desk = session.desk
         let open = desk.playerOpen || fullscreen
         let voiceActive = session.liveVoice.isActive
-        let host = session.backend.serverURL.host() ?? ""
         ZStack {
             Color.black
             if session.isDemo {
                 note("In der Demo läuft kein Stream.", symbol: "play.slash")
                     .opacity(open ? 1 : 0)
-            } else if let channel = desk.channel, !host.isEmpty {
-                TwitchPlayerView(channel: channel, host: host, paused: voiceActive) { state = $0 }
-                    .id(attempt)
+            } else if let channel = desk.channel {
+                TwitchPlayerView(channel: channel, reload: desk.playerReload, muted: voiceActive) { state = $0 }
                     .opacity(open ? 1 : 0.02)
                     .allowsHitTesting(open)
                     .accessibilityLabel("Stream von \(desk.channelName)")
                 if open, case .failed(let message) = state {
                     VStack(spacing: 10) {
                         note(message, symbol: "exclamationmark.triangle")
-                        Button("Noch einmal laden") { attempt += 1 }
+                        Button("Noch einmal laden") { desk.reloadPlayer() }
                             .buttonStyle(PultKeyStyle(tone: Palette.amber, compact: true))
                     }
                 }
                 if open && voiceActive {
-                    Label("Angehalten, solange Live-Voice läuft", systemImage: "mic.fill")
+                    Label("Ton aus, solange Live-Voice läuft", systemImage: "mic.fill")
                         .font(.footnote.weight(.semibold))
                         .foregroundStyle(.white)
                         .padding(.horizontal, 12)
@@ -172,7 +205,7 @@ struct DeskPlayer: View {
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(Palette.text)
                 .lineLimit(1)
-            Text(voiceActive ? "angehalten (Live-Voice)" : (state == .playing ? "Ton läuft" : ""))
+            Text(voiceActive ? "Ton aus (Live-Voice)" : (state == .playing ? "Ton läuft" : ""))
                 .font(.footnote)
                 .foregroundStyle(Palette.textMuted)
                 .lineLimit(1)

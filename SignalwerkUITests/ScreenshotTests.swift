@@ -69,6 +69,11 @@ final class ScreenshotTests: XCTestCase {
         }
     }
 
+    /// Offenes Menü schließen: neben das Menü tippen (in den Player).
+    private func dismissMenu() {
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.22)).tap()
+    }
+
     /// Tippen über die Kennung; fehlt das Element, ein Bild davon, wie es aussah.
     private func tap(_ identifier: String) {
         let item = element(identifier)
@@ -147,6 +152,22 @@ final class ScreenshotTests: XCTestCase {
         } else {
             // Arbeitsbereich: Player oben (in der Demo ein Hinweis), darunter die Reiter.
             snap("01-arbeitsbereich")
+            // Menü des Players: Kanal und Anmeldung bei Twitch. Die Anmeldeseite kommt von
+            // twitch.tv und braucht Netz; das Bild zeigt, ob Twitch sie in der App anzeigt.
+            tap("desk-player-menu")
+            sleep(1)
+            snap("01b-player-menue")
+            let login = app.buttons["Bei Twitch anmelden"].firstMatch
+            if login.waitForExistence(timeout: 3) {
+                login.tap()
+                sleep(10)
+                snap("01c-twitch-anmeldung")
+                tap("twitch-login-cancel")
+                sleep(1)
+            } else {
+                XCTFail("Bei Twitch anmelden fehlt im Menü")
+                dismissMenu()
+            }
             // Oberste Spende per Wischen annehmen.
             let first = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH %@", "queue-row-")).firstMatch
             if first.waitForExistence(timeout: 5) {
@@ -184,6 +205,12 @@ final class ScreenshotTests: XCTestCase {
             tap("more-stats")
             sleep(2)
             snap("09-statistik")
+            // Zurück zu „Mehr“ und in die Einstellungen (Twitch im Player).
+            app.navigationBars.buttons.element(boundBy: 0).tap()
+            sleep(1)
+            tap("more-settings")
+            sleep(1)
+            snap("09b-einstellungen")
         }
 
         // Notbremse in der Demo: Rückmeldung erscheint.
