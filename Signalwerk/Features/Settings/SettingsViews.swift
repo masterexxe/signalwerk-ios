@@ -94,10 +94,8 @@ struct SettingsScreen: View {
         .background(Palette.background)
         .navigationTitle("Einstellungen")
         .toolbar { EmergencyToolbar() }
-        .task {
-            await session.desk.refreshTwitch()
-            await devices.load()
-        }
+        .task { await devices.load() }
+        .task { await session.desk.refreshTwitch() }
         .refreshable { await devices.load() }
         .sheet(isPresented: $twitchLogin) {
             TwitchLoginSheet()

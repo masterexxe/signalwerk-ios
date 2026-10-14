@@ -35,6 +35,16 @@ public enum TwitchWeb {
         host?.lowercased() == playerHost
     }
 
+    /// Ende der Browserkennung wie bei Safari, damit twitch.tv die Web-Ansicht wie Safari behandelt:
+    /// iPhone "Version/26.0 Mobile/15E148 Safari/604.1", iPad (Desktop-Seiten) "Version/26.0 Safari/605.1.15".
+    public static func userAgentSuffix(systemVersion: String, pad: Bool) -> String {
+        let parts = systemVersion.split(separator: ".").map(String.init)
+        let major = parts.first.flatMap { Int($0) } ?? 17
+        let minor = parts.count > 1 ? (Int(parts[1]) ?? 0) : 0
+        let version = "Version/\(major).\(minor)"
+        return pad ? "\(version) Safari/605.1.15" : "\(version) Mobile/15E148 Safari/604.1"
+    }
+
     /// Angemeldetes Konto aus den Cookies von twitch.tv; nil, wenn niemand angemeldet ist.
     /// Angemeldet heißt: Cookie `auth-token`. Den Namen liefern `twilight-user` (JSON) oder `login`.
     public static func account(from cookies: [WebCookie]) -> TwitchWebAccount? {

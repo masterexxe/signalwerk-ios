@@ -35,16 +35,18 @@ struct TwitchLoginSheet: View {
     @State private var loading = true
     @State private var failure: String?
     @State private var attempt = 0
+    @State private var address = "www.twitch.tv"
 
     var body: some View {
         NavigationStack {
             ZStack {
                 Palette.background.ignoresSafeArea()
-                TwitchLoginView(attempt: attempt, loading: $loading, failure: $failure) {
+                TwitchLoginView(attempt: attempt, loading: $loading, failure: $failure, address: $address) {
                     Task {
                         await session.desk.refreshTwitch()
                         if let account = session.desk.twitchAccount {
-                            session.toasts.show("Bei Twitch angemeldet als \(account.label).")
+                            let named = !account.displayName.isEmpty || !account.login.isEmpty
+                            session.toasts.show(named ? "Bei Twitch angemeldet als \(account.label)." : "Bei Twitch angemeldet.")
                         }
                         dismiss()
                     }
@@ -78,6 +80,20 @@ struct TwitchLoginSheet: View {
                     Button("Abbrechen") { dismiss() }
                         .accessibilityIdentifier("twitch-login-cancel")
                 }
+                ToolbarItem(placement: .principal) {
+                    // Wie bei Anmeldungen in Safari: welche Seite gerade offen ist.
+                    VStack(spacing: 1) {
+                        Text("Bei Twitch anmelden")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(Palette.text)
+                        Label(address, systemImage: "lock.fill")
+                            .font(.caption2)
+                            .foregroundStyle(Palette.textMuted)
+                            .labelStyle(.titleAndIcon)
+                            .lineLimit(1)
+                            .accessibilityIdentifier("twitch-login-address")
+                    }
+                }
             }
         }
     }
@@ -89,6 +105,7 @@ struct TwitchLoginView: UIViewRepresentable {
     var attempt: Int
     @Binding var loading: Bool
     @Binding var failure: String?
+    @Binding var address: String
     var onSignedIn: () -> Void
 
     func makeCoordinator() -> Coordinator {
@@ -125,6 +142,7 @@ struct TwitchLoginView: UIViewRepresentable {
         private var loadedAttempt: Int?
         private var signedIn = false
         private var checking = false
+        private var recheck = false
 
         init(parent: TwitchLoginView) {
             self.parent = parent
@@ -136,18 +154,35 @@ struct TwitchLoginView: UIViewRepresentable {
             view.load(URLRequest(url: TwitchWeb.loginURL))
         }
 
-        /// Nach jeder Änderung an den Cookies: Hat Twitch angemeldet?
+        /// Nach jeder Änderung an den Cookies: Hat Twitch angemeldet? Ändert sich während des
+        /// Lesens wieder etwas, gleich noch einmal lesen.
         private func check() {
-            guard !signedIn, !checking else { return }
+            guard !signedIn else { return }
+            if checking {
+                recheck = true
+                return
+            }
             checking = true
             Task { @MainActor [weak self] in
                 let account = await TwitchSignIn.currentAccount()
                 guard let self else { return }
                 self.checking = false
-                if account != nil && !self.signedIn {
-                    self.signedIn = true
-                    self.parent.onSignedIn()
+                if account != nil {
+                    self.finish()
+                } else if self.recheck {
+                    self.recheck = false
+                    self.check()
                 }
+            }
+        }
+
+        /// Angemeldet: kurz warten, bis Twitch auch den Namen in die Cookies geschrieben hat.
+        private func finish() {
+            guard !signedIn else { return }
+            signedIn = true
+            Task { @MainActor [weak self] in
+                try? await Task.sleep(nanoseconds: 1_500_000_000)
+                self?.parent.onSignedIn()
             }
         }
 
@@ -157,12 +192,23 @@ struct TwitchLoginView: UIViewRepresentable {
             }
         }
 
+        func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {
+            // Seiten laden; Links auf Apps (twitch://, App Store) nicht.
+            guard let url = navigationAction.request.url else { return .cancel }
+            return TwitchWebKit.isWebAddress(url) ? .allow : .cancel
+        }
+
         func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
             parent.loading = true
         }
 
+        func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+            if let host = webView.url?.host(), !host.isEmpty { parent.address = host }
+        }
+
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             parent.loading = false
+            if let host = webView.url?.host(), !host.isEmpty { parent.address = host }
             check()
         }
 
@@ -186,7 +232,7 @@ struct TwitchLoginView: UIViewRepresentable {
 
         private func fail(_ error: any Error) {
             parent.loading = false
-            guard !TwitchWebKit.isHarmless(error) else { return }
+            guard TwitchWebKit.isConnectionProblem(error) else { return }
             parent.failure = "Die Anmeldeseite von Twitch lädt nicht. Prüfe die Verbindung."
         }
     }

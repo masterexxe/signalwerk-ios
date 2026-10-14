@@ -154,7 +154,7 @@ struct TwitchPlayerView: UIViewRepresentable {
         }
 
         private func fail(_ error: any Error) {
-            guard !TwitchWebKit.isHarmless(error) else { return }
+            guard TwitchWebKit.isConnectionProblem(error) else { return }
             report(.failed("Twitch ist gerade nicht erreichbar. Prüfe die Verbindung."))
         }
 
@@ -175,17 +175,23 @@ struct TwitchPlayerView: UIViewRepresentable {
       var wantMuted = false;
       var mutedByUs = [];
       var playedBefore = [];
-      var seen = [];
       var scheduled = false;
       function videos() { return Array.prototype.slice.call(document.querySelectorAll("video")); }
       function watch(video) {
-        if (seen.indexOf(video) >= 0) { return; }
-        seen.push(video);
+        if (video.signalwerkWatched) { return; }
+        video.signalwerkWatched = true;
         video.addEventListener("playing", function () { post("playing"); });
         video.addEventListener("pause", function () {
           if (videos().every(function (other) { return other.paused; })) { post("stopped"); }
         });
         video.addEventListener("ended", function () { post("stopped"); });
+        // Während Live-Voice bleibt der Ton aus, auch wenn der Player ihn selbst wieder einschaltet.
+        video.addEventListener("volumechange", function () {
+          if (wantMuted && !video.muted) {
+            video.muted = true;
+            if (mutedByUs.indexOf(video) < 0) { mutedByUs.push(video); }
+          }
+        });
         if (!video.paused) { post("playing"); }
       }
       function apply() {
@@ -231,7 +237,8 @@ struct TwitchPlayerView: UIViewRepresentable {
 }
 
 /// Gemeinsame Einstellungen der Web-Ansichten für Twitch (Player und Anmeldung): derselbe
-/// dauerhafte Web-Speicher, Video im Bild statt Vollbild, Ton ohne Antippen.
+/// dauerhafte Web-Speicher, Video im Bild statt Vollbild, Ton ohne Antippen, Browserkennung
+/// wie Safari.
 @MainActor
 enum TwitchWebKit {
     static func configuration() -> WKWebViewConfiguration {
@@ -240,15 +247,28 @@ enum TwitchWebKit {
         configuration.allowsInlineMediaPlayback = true
         configuration.allowsPictureInPictureMediaPlayback = true
         configuration.mediaTypesRequiringUserActionForPlayback = []
+        configuration.applicationNameForUserAgent = TwitchWeb.userAgentSuffix(
+            systemVersion: UIDevice.current.systemVersion,
+            pad: UIDevice.current.userInterfaceIdiom == .pad
+        )
         return configuration
     }
 
-    /// Abgebrochene Ladevorgänge (eigener Abbruch, neue Seite) sind kein Fehler.
-    nonisolated static func isHarmless(_ error: any Error) -> Bool {
+    /// Nur echte Verbindungsprobleme zeigen. Abbrüche, neue Seiten und Links auf Apps
+    /// (twitch://, App Store) sind kein Fehler der Seite.
+    nonisolated static func isConnectionProblem(_ error: any Error) -> Bool {
         let error = error as NSError
-        if error.domain == NSURLErrorDomain && error.code == NSURLErrorCancelled { return true }
-        // WebKitErrorFrameLoadInterruptedByPolicyChange
-        return error.domain == "WebKitErrorDomain" && error.code == 102
+        guard error.domain == NSURLErrorDomain else { return false }
+        return [
+            NSURLErrorNotConnectedToInternet, NSURLErrorTimedOut, NSURLErrorCannotFindHost,
+            NSURLErrorCannotConnectToHost, NSURLErrorNetworkConnectionLost, NSURLErrorDNSLookupFailed,
+            NSURLErrorSecureConnectionFailed, NSURLErrorInternationalRoamingOff, NSURLErrorDataNotAllowed,
+        ].contains(error.code)
+    }
+
+    /// Adressen, die in der Web-Ansicht laden dürfen; andere (Apps, Mail) nicht.
+    nonisolated static func isWebAddress(_ url: URL) -> Bool {
+        ["http", "https", "about", "blob", "data"].contains(url.scheme?.lowercased() ?? "")
     }
 }
 

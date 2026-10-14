@@ -58,10 +58,8 @@ struct DeskScreen: View {
         }
         .toolbar(fullscreen ? .hidden : .automatic, for: .navigationBar, .tabBar)
         .background(QueueKeyboardShortcuts())
-        .task {
-            await desk.refreshTwitch()
-            await desk.load()
-        }
+        .task { await desk.load() }
+        .task { await desk.refreshTwitch() }
         .onChange(of: scenePhase) { _, phase in
             // Twitch meldet nach einiger Zeit ab; beim Zurückkommen den Stand neu lesen.
             if phase == .active { Task { await desk.refreshTwitch() } }

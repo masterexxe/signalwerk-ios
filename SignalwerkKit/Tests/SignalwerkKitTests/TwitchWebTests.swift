@@ -27,6 +27,13 @@ final class TwitchWebTests: XCTestCase {
         XCTAssertFalse(TwitchWeb.isPlayer(host: "www.twitch.tv"))
     }
 
+    func testUserAgentSuffix() {
+        XCTAssertEqual(TwitchWeb.userAgentSuffix(systemVersion: "26.0.1", pad: false), "Version/26.0 Mobile/15E148 Safari/604.1")
+        XCTAssertEqual(TwitchWeb.userAgentSuffix(systemVersion: "17.5", pad: false), "Version/17.5 Mobile/15E148 Safari/604.1")
+        XCTAssertEqual(TwitchWeb.userAgentSuffix(systemVersion: "18", pad: true), "Version/18.0 Safari/605.1.15")
+        XCTAssertEqual(TwitchWeb.userAgentSuffix(systemVersion: "", pad: false), "Version/17.0 Mobile/15E148 Safari/604.1")
+    }
+
     func testAccountNeedsAuthToken() {
         XCTAssertNil(TwitchWeb.account(from: []))
         XCTAssertNil(TwitchWeb.account(from: [WebCookie(name: "login", value: "yusuf", domain: ".twitch.tv")]))
